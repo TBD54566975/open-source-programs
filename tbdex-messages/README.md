@@ -125,7 +125,7 @@ This library contains a number of classes and interfaces that you can use to sim
     - Class that ties everything together. On instantiation, you can register `MessageProcessor` instances to specific `MessageType`s. Adding a message to an instance of `MessageThreadProcessor` will execute the processor associated to the message's type.
 
 
-```java=
+```java
 package io.tbd.tbdex.messages;
 
 import io.tbd.tbdex.messages.core.Message;
@@ -140,19 +140,21 @@ import java.time.Instant;
 public class Main {
     public static void main(String[] args) {
 
-        MessageThreadProcessor pfi = new MessageThreadProcessor
-                .Builder()
-                .registerProcessor(MessageType.Ask, new AskProcessor())
-                .registerProcessor(MessageType.OfferAccept, new OfferAcceptProcessor())
-                .build();
+        MessageThreadProcessor pfi =
+                new MessageThreadProcessor.Builder()
+                        .registerProcessor(MessageType.Ask, new AskProcessor())
+                        .registerProcessor(MessageType.OfferAccept, new OfferAcceptProcessor())
+                        .build();
 
         Ask ask = new Ask("USD", 100, "USDC");
 
-        Message message = new Message.Builder("hi", "2u", "whatever","did:ion:123")
-                .createdTime(Instant.now())
-                .build(ask);
-        
+        Message message =
+                new Message.Builder("id", "threadID", "from", "to")
+                        .createdTime(Instant.now())
+                        .build(ask);
+
         Message reply = pfi.addMessage(message);
         System.out.println(reply);
     }
+}
 ```
