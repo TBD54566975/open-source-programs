@@ -14,5 +14,7 @@ public class Ask extends MessageBody {
         this.sourceCurrency = sourceCurrency;
         this.sourceAmount = sourceAmount;
         this.targetCurrency = targetCurrency;
+
+        this.addValidReplyTypes(MessageType.ConditionalOffer, MessageType.Close);
     }
 }
