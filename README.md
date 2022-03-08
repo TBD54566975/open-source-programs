@@ -31,8 +31,7 @@ Our work is prioritized around team and project goals for the [current milestone
 
 ## TBD
 
-Project leads should complete, alongside this `README`:
-* [CODEOWNERS](./CODEOWNERS) - set project lead(s)
+Still to be completed, alongside this `README`:
 * [CONTRIBUTING.md](./CONTRIBUTING.md) - Fill out how to: install prereqs, build, test, run, access CI, chat, discuss, file issues
 
 ## Project Resources
