@@ -201,7 +201,7 @@ Repo: [tbdex-protocol](https://github.com/TBD54566975/tbdex-protocol)
 
 #### PFI or Credential Provider Mock Implementation
 DRI: @hdou731
-Repo: [tbdex-protocol](https://github.com/TBD54566975/tbdex-protocol)
+Repo: [tbdex-pfi-mockimpl](https://github.com/TBD54566975/tbdex-pfi-mockimpl)
 
 * Move internal documentation [here](https://www.notion.so/tbd54566975/PFI-Implementation-e6fbf35f94814dde964872d95c52179e) to GitHub (looks like a mix of `tbdex-protocol` and `mock-impl`, yes?)
 
@@ -220,6 +220,7 @@ Please encode as SMART goals - let @ALRubinger know if you'd like to set some to
 #### Identity Hubs
 DRI: @mistermoe  
 Development: @csuwildcat
+Repo: [hub-sdk-js](https://github.com/TBD54566975/hub-sdk-js)
 
 The goal for this period of Hub development is to deliver a working MVP of a Hub. This MVP will include support for the following interfaces, functionality, and features:
 
@@ -230,7 +231,9 @@ The goal for this period of Hub development is to deliver a working MVP of a Hub
 - Full web-hook support
 
 #### Development Site
-DRI: @ALRubinger
+
+DRI: @ALRubinger  
+Repos: [developer-site](https://github.com/TBD54566975/developer-site), [developer-site-docusaurus](https://github.com/TBD54566975/developer-site-docusaurus)
 
 * Home Page with orientation about mission, vision
 * Projects page, likely summarizing or linking to the `collaboration` repo
