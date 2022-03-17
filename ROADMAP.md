@@ -34,10 +34,10 @@ Let's go.
 
 ## Current: Milestone 1
 
-| Item                 | Value                               |
-|----------------------|-------------------------------------|
-| Codename             | `Bienvenidos a Miami`               |
-| Timebox delivery     | Tuesday, 5 April, 2022              |
+| Item             | Value                  |
+| ---------------- | ---------------------- |
+| Codename         | `Bienvenidos a Miami`  |
+| Timebox delivery | Tuesday, 5 April, 2022 |
 
 ### Summary
 
@@ -62,13 +62,11 @@ financial institutions and credential issuers to join without barriers. It
 creates new opportunity - for users to transact without intermediaries, and 
 to retain ownership of their data and currency.
 
-Milestone 1 is about releasing the first prototypes of the tbDEX system. It will
+Milestone 1 is about contributor readiness. It will
 prioritize, in order: minimal APIs, documentation, tests, and early implementation
 code. In addition, we'll deliver an initial Developer site for visitors to:
 
-* See how the moving parts come together
 * Get involved with contribution
-* Run the demo examples on your own
 * Express interest in joining Block and TBD
 * Discover to our library of public Twitter spaces
 
@@ -88,33 +86,7 @@ communicate our vision and be positioned to accept contribution in all its forms
 * Code
 * Documentation
 
-#### Technical Vision
-
-`Bienvenidos a Miami` delivers a minimally-working `tbDEX` system. Its purpose
-is three-fold:
-
-* Prove the architecture through running code
-* Demonstrate the approaches taken
-* Act as the first functional starting point for discussion and evolution
-
-Integration takes precedence over feature depth. We'll be releasing the minimum
-viable components which communicate together to solve the Team Goal.
-
 ### Team Goals
-
-#### Capabilities
-
-* User may create a DID
-* User may apply for and receive a verifiable credential
-* User may use the VC to transact, swapping fiat for Bitcoin
-* User may store VCs and currency as flat files
-* The system through which the above occurs is decentralzied
-
-#### User flow
-
-* User, using a command line tool like `curl` or `httpie`, issues an `HTTP` request to VC Service asking for digital identification. There is an exchange between the user and the VC service resulting in VC issuance. This process is documented and able to be replicated by any newcomer. User may store their VC as a flat file, mocking the behaviour of a wallet to hold their identity data.
-* User, using previously received VC, makes an HTTP request to their entry point on the decentralized system asking to exchange fiat for Bitcoin. The message format adheres to the tbDEX messaging protocol. The system handles routing and arrives at Primary Financial Institution (PFI) who negotiates the transaction, and through a series of documented exchanges with the client, swaps fiat for Bitcoin. The user may store this information as a flat file as well.
-
 #### Deliverables
 
 Every project will have:
@@ -125,12 +97,10 @@ Every project will have:
 * All other static files from the [project template](https://github.com/TBD54566975/tbd-project-template)
 * Public visibility
 * Testsuite which mocks requests from either the user or other components in the system
-* Fulfilled their responsibility in the user flow
 
 The team will collectively have:
 
 * Welcome to new contributors in the `collaboration` repository `README`, introducing all the projects and how they come together to form a system
-* Instructions for either accessing the system on public infrastructure to run the user flows (preferable, stretch) or building and running all components on their machine (fallback). Minimum deliverable is a full system which can communicate and receive/respond to messages originated from the client CLI.
 * Development Site
 
 ### Project Goals
@@ -196,7 +166,7 @@ Repo: [tbdex-protocol](https://github.com/TBD54566975/tbdex-protocol)
 * Produce all necessary message schemas
 * Iron out State Machine / Diagram
 * Produce a reference implementation specifically for the core state machine
-* Produce an end-to-end demo facilitating USD → USDC using [Circle’s API](https://developers.circle.com/docs/introducing-circle-apis) to mint USDC and [Persona](https://withpersona.com/) for IDV
+* Produce an end-to-end demo facilitating USD → USDC using [Circle’s API](https://developers.circle.com/docs/introducing-circle-apis) to mint USDC
 * Stretch goal: Produce an initial draft of the tbdEX spec (likely to be descoped)
 
 #### PFI or Credential Provider Mock Implementation
