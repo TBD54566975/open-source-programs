@@ -100,7 +100,7 @@ Every project will have:
 
 The team will collectively have:
 
-* Welcome to new contributors in the `collaboration` repository `README`, introducing all the projects and how they come together to form a system
+* #24 Welcome to new contributors in the `collaboration` repository `README`, introducing all the projects and how they come together to form a system
 * Development Site
 
 ### Project Goals
