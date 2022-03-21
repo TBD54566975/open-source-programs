@@ -159,8 +159,7 @@ Standards-based primitives to reach the goals.
 - No assumption of wallet (plain text is fine)
 
 #### tbDEX Message Format (Protocol)
-DRI: @hdou  
-Development: @mistermoe  
+DRI: @hdou, @mistermoe  
 Repo: [tbdex-protocol](https://github.com/TBD54566975/tbdex-protocol)
 
 * Produce all necessary message schemas
