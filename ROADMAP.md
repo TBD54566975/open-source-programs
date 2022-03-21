@@ -91,9 +91,9 @@ communicate our vision and be positioned to accept contribution in all its forms
 
 Every project will have:
 
-* Customized `README`
+* Customized `README` (per repo and/or per module as appropriate)
 * Customized `CODEOWNERS`
-* Customized `CONTRIBUTING.md`
+* Customized `CONTRIBUTING.md` (per repo and/or per module as appropriate)
 * All other static files from the [project template](https://github.com/TBD54566975/tbd-project-template)
 * Public visibility
 * Testsuite which mocks requests from either the user or other components in the system
@@ -162,29 +162,18 @@ Standards-based primitives to reach the goals.
 DRI: @hdou, @mistermoe  
 Repo: [tbdex-protocol](https://github.com/TBD54566975/tbdex-protocol)
 
-* Produce all necessary message schemas
+* Initially define necessary message schemas. These are: https://github.com/TBD54566975/tbdex-protocol/tree/main/lib#message-types
 * Iron out State Machine / Diagram
 * Produce a reference implementation specifically for the core state machine
-* Produce an end-to-end demo facilitating USD → USDC using [Circle’s API](https://developers.circle.com/docs/introducing-circle-apis) to mint USDC
-* Stretch goal: Produce an initial draft of the tbdEX spec (likely to be descoped)
 
 #### PFI or Credential Provider Mock Implementation
 DRI: @hdou731
 Repo: [tbdex-pfi-mockimpl](https://github.com/TBD54566975/tbdex-pfi-mockimpl)
 
 * Move internal documentation [here](https://www.notion.so/tbd54566975/PFI-Implementation-e6fbf35f94814dde964872d95c52179e) to GitHub (looks like a mix of `tbdex-protocol` and `mock-impl`, yes?)
-
-Most of the PFI message processors will live within the tbDEX protocol. We will process asks, offers, idv requests, and payments with different handlers. 
-
-Message schemas will be decided upon (with changes expected in the future). 
-
-Probably not within this scope of time, but possibly a persona implementation as a VC issuer.
-
----
-NOTE
-Please encode as SMART goals - let @ALRubinger know if you'd like to set some together.
-
----
+* Implement necessary message processors for a PFI
+* Produce single HTTP endpoint which exposes a PFI and accepts tbDEX messages
+* Produce a demo facilitating USD → USDC using [Circle’s API](https://developers.circle.com/docs/introducing-circle-apis) to mint USDC
 
 #### Identity Hubs
 DRI: @mistermoe  
@@ -232,6 +221,7 @@ viable components which communicate together to solve the Team Goal.
 * User may use the VC to transact, swapping fiat for Bitcoin
 * User may store VCs and currency as flat files
 * The system through which the above occurs is decentralzied
+* `tbdex-protocol`: Produce an initial draft of the tbdEX spec (likely to be descoped)
 
 #### User flow
 
