@@ -199,12 +199,12 @@ The goal for this period of Hub development is to deliver a working MVP of a Hub
 * Full support for collections. [Spec reference](https://identity.foundation/identity-hub/spec/#collections)
 - Full web-hook support
 
-#### Development Site
+#### Temp Development Site
 
 DRI: @ALRubinger  
 Repos: [developer-site](https://github.com/TBD54566975/developer-site), [developer-site-docusaurus](https://github.com/TBD54566975/developer-site-docusaurus)
 
-* Home Page with orientation about mission, vision
+* Stub Home Page with orientation about mission, vision
 * Projects page, likely summarizing or linking to the `collaboration` repo
 * Careers, with links to current openings and form for candidate intake
 * Media, from @angiej
