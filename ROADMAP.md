@@ -64,7 +64,7 @@ to retain ownership of their data and currency.
 
 Milestone 1 is about contributor readiness. It will
 prioritize, in order: minimal APIs, documentation, tests, and early implementation
-code. In addition, we'll deliver an initial Developer site for visitors to:
+code. In addition, we'll surface our info in the temp TBD site for visitors to:
 
 * Get involved with contribution
 * Express interest in joining Block and TBD
