@@ -101,7 +101,7 @@ Every project will have:
 The team will collectively have:
 
 * #24 Welcome to new contributors in the `collaboration` repository `README`, introducing all the projects and how they come together to form a system
-* Development Site
+* Contributed orientation development messaging to the temp TBD Site
 
 ### Project Goals
 
