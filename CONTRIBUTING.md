@@ -26,14 +26,21 @@ has a `COLLABORATION.md` file which describes:
 
 ---
 
-
-
-
 ## Communications
+
+### Roadmap
+
+Our [roadmap](./ROADMAP.md) is public and follows a milestone model.
 
 ### Issues
 
 Anyone from the community is welcome (and encouraged!) to raise issues via [GitHub Issues](https://github.com/TBD54566975/collaboration/issues) 
+
+### Project Board
+
+Issues throughout the TBD projects are tracked on the 
+[project board](https://github.com/orgs/TBD54566975/projects/2). There are views 
+available to find outstanding work by milestone and progress/status.
 
 ### Discussions
 

@@ -1,38 +1,66 @@
 # TBD Collaboration Repository
 
-This repository is the welcoming point to TBD's open source efforts. It outlines the tbDEX and 
-Identity systems being built and the components which comprise them. It's your first stop to getting 
-involved.
+This repository is the welcoming point to TBD's open source efforts. It outlines 
+the tbDEX Protocol, Decentralized Web Platform, and the components which comprise them. 
 
-## Overview
+This repository is not a source forge, but a sync point for TBD projects. It's
+used for documentation, issues, and discussions that span our software.
 
-TBD [#11](https://github.com/TBD54566975/collaboration/issues/11).
+## Systems
 
-Template:
+The tbDEX Protocol is the center of our work. It allows users to transact
+with financial institutions - without a central authority. Users can 
+exchange fiat and crypto with providers who plug into the system. 
 
-Orient users to the project here. This is a good place to start with an assumption
-that the user knows very little - so start with the Big Picture and show how this
-project fits into it. It may be good to reference/link the broader architecture in the
-`collaboration` repo or the developer site here.
+The Decentralized Web Platform is the architecture which makes this possible. It provides
+the complex transport and identity systems necessary for parties to transact with one
+another.
 
-Then maybe a dive into what this project does.
+Together, these two systems open up a world of possibility for currency and information
+exchange. And they return ownership of data where we believe it belongs:
+with the user.
 
-Diagrams and other visuals are helpful here. Perhaps code snippets showing usage.
+[INSERT IMAGE of COMPONENTS in the system here]
+@csuwildcat - https://github.com/TBD54566975/collaboration/issues/27
 
-## Current Work
+### tbDEX
 
-Our work is prioritized around team and project goals for the [current milestone](./CURRENT.md).
+The `tbDEX` Protocol was first described in a [whitepaper](https://tbdex.io/whitepaper.pdf)
+in November 2021. From its abstract:
+
+```
+tbDEX is a protocol for discovering liquidity and exchanging assets (such as bitcoin, fiat money, or real world goods) when the existence of social trust is an intractable element of managing transaction risk. The tbDEX protocol facilitates decentralized networks of exchange between assets by providing a framework for establishing social trust, utilizing decentralized identity (DID) and verifiable credentials (VCs) to establish the provenance of identity in the real world. The protocol has no opinion on anonymity as a feature or consequence of transactions. Instead, it allows willing counterparties to negotiate and establish the minimum information acceptable for the exchange. Moreover, it provides the infrastructure necessary to create a ubiquity of on-ramps and off-ramps directly between the fiat and crypto financial systems without the need for centralized intermediaries and trust brokers. This makes crypto assets and decentralized financial services more accessible to everyone.
+```
+
+The source for the `tbDEX` whitepaper is [here](https://github.com/TBD54566975/tbdex-whitepaper).
+
+The [`tbdex-protocol` repository](https://github.com/TBD54566975/tbdex-protocol) is where
+this work is housed. It describes the message formats/schemas used to transact. And it also
+contains a preliminary mock implementation a PFI (Primary Financial Institution) may 
+implement when it plugs into the system.
+
+Looking forward, the work done here may be split into separate repositories. For now it's 
+faster to couple the message formats, libraries, and mock implementation together until
+the APIs harden.
+
+### Decentralized Web Platform
+
+@csuwildcat - https://github.com/TBD54566975/collaboration/issues/26
+
+## Contribution
+
+The [contribution guide](./CONTRIBUTING.md) welcomes contributors with resources to get involved.
 
 ## Projects
 
 | Project                                                  | Description                                                                    |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [`did-sdk`](https://github.com/TBD54566975/did-sdk)     | The did-sdk intends to provide a set of standards-based primitives for building decentralized identity applications.
-
-## TBD
-
-Still to be completed, alongside this `README`:
-* [CONTRIBUTING.md](./CONTRIBUTING.md) - Fill out how to: install prereqs, build, test, run, access CI, chat, discuss, file issues
+| [`did-sdk`](https://github.com/TBD54566975/did-sdk)     | The did-sdk provides a set of standards-based primitives for building decentralized identity applications. |
+| [`developer-site`](https://github.com/TBD54566975/developer-site)     | Temporary developer site containing orienting resources to those looking to contribute to or work for TBD. |
+| [`hub-sdk-js`](https://github.com/TBD54566975/hub-sdk-js)     | Reference implementation of Identity Hubs as per the [specification](https://identity.foundation/identity-hub/spec/). |
+| [`tbd-project-template`](https://github.com/TBD54566975/tbd-project-template)     | A template repository to create new projects with Governance, Licensing, and Code of Conduct |
+| [`tbdex-protocol`](https://github.com/TBD54566975/tbdex-protocol)     | `tbDEX` message formats, libraries, and a mock PFI implementation showing how these may be used |
+| [`vc-service`](https://github.com/TBD54566975/vc-service)     | Verifiable Credentials service |
 
 ## Project Resources
 
