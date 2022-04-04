@@ -55,12 +55,12 @@ The [contribution guide](./CONTRIBUTING.md) welcomes contributors with resources
 
 | Project                                                  | Description                                                                    |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [`did-sdk`](https://github.com/TBD54566975/did-sdk)     | The did-sdk provides a set of standards-based primitives for building decentralized identity applications. |
+| [`ssi-sdk`](https://github.com/TBD54566975/ssi-sdk)     | The ssi-sdk provides a set of standards-based primitives for building decentralized identity applications. |
 | [`developer-site`](https://github.com/TBD54566975/developer-site)     | Temporary developer site containing orienting resources to those looking to contribute to or work for TBD. |
-| [`hub-sdk-js`](https://github.com/TBD54566975/hub-sdk-js)     | Reference implementation of Identity Hubs as per the [specification](https://identity.foundation/identity-hub/spec/). |
+| [`dwn-sdk-js`](https://github.com/TBD54566975/dwn-sdk-js)     | Reference implementation of Decentralized Web Nodes as per the [specification](https://identity.foundation/decentralized-web-node/spec/). |
 | [`tbd-project-template`](https://github.com/TBD54566975/tbd-project-template)     | A template repository to create new projects with Governance, Licensing, and Code of Conduct |
 | [`tbdex-protocol`](https://github.com/TBD54566975/tbdex-protocol)     | `tbDEX` message formats, libraries, and a mock PFI implementation showing how these may be used |
-| [`vc-service`](https://github.com/TBD54566975/vc-service)     | Verifiable Credentials service |
+| [`ssi-service`](https://github.com/TBD54566975/ssi-service)     | Self-Sovereign Identity service |
 
 ## Project Resources
 
