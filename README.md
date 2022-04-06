@@ -43,10 +43,6 @@ Looking forward, the work done here may be split into separate repositories. For
 faster to couple the message formats, libraries, and mock implementation together until
 the APIs harden.
 
-### Decentralized Web Platform
-
-@csuwildcat - https://github.com/TBD54566975/collaboration/issues/26
-
 ## Contribution
 
 The [contribution guide](./CONTRIBUTING.md) welcomes contributors with resources to get involved.
