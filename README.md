@@ -1,10 +1,32 @@
 # TBD Collaboration Repository
 
 This repository is the welcoming point to TBD's open source efforts. It outlines 
-the tbDEX Protocol, Decentralized Web Platform, and the components which comprise them. 
+the tbDEX Protocol and the components which comprise it. 
 
 This repository is not a source forge, but a sync point for TBD projects. It's
-used for documentation, issues, and discussions that span our software.
+used for documentation, issues, and discussions that span our individual repositories.
+
+## Current Status
+
+All projects in the TBD family are in early prototyping. New contributors should 
+expect a pace of development consistent with nascent technology: larger commits, 
+frequent refactoring, changing APIs, and incomplete featuresets. We believe: _open source
+is not a publishing medium_. These projects are open from the start to welcome your
+interest, invite discussion, identify early issues, and advise on design. An early
+adopter mindset will work well until these projects mature further.
+
+The Discussion forums and Issue trackers are likely the best way to get involved now. Our
+project leads may be able to guide your efforts and incorporate your feedback in ways that
+will be most meaningful to you and the project's goals.
+
+In particular, we want to ensure the New Contributor Experience is as smooth as possible.
+You should be able to:
+
+* Understand each project's goals and scope
+* Install prerequisite dependencies
+* Clone and build the project
+* Run the tests
+* Join the conversation in Discussions and Issues
 
 ## Systems
 
@@ -12,11 +34,13 @@ The tbDEX Protocol is the center of our work. It allows users to transact
 with financial institutions - without a central authority. Users can 
 exchange fiat and crypto with providers who plug into the system. 
 
-The Decentralized Web Platform is the architecture which makes this possible. It provides
+[Decentralized Web Node](https://identity.foundation/decentralized-web-node/spec/) is 
+the architecture which makes this possible. It provides
 the complex transport and identity systems necessary for parties to transact with one
-another.
+another. We are developing a TypeScript- and JavaScript-based reference 
+implementation in the `dwn-sdk-js` repository.
 
-Together, these two systems open up a world of possibility for currency and information
+Together, these systems open up a world of possibility for currency and information
 exchange. And they return ownership of data where we believe it belongs:
 with the user.
 
