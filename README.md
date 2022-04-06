@@ -20,9 +20,6 @@ Together, these two systems open up a world of possibility for currency and info
 exchange. And they return ownership of data where we believe it belongs:
 with the user.
 
-[INSERT IMAGE of COMPONENTS in the system here]
-@csuwildcat - https://github.com/TBD54566975/collaboration/issues/27
-
 ### tbDEX
 
 The `tbDEX` Protocol was first described in a [whitepaper](https://tbdex.io/whitepaper.pdf)
