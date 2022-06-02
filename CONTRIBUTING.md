@@ -12,7 +12,7 @@ For topics that pertain to the architecture of TBD systems including `tbDEX` and
 * Evangelize our work together in conferences, podcasts, and social media spaces.
 
 More specific issues, discussions, and other contributions are likely best raised in their 
-respective project repositories. They follow simialr tooling and processes to those described
+respective project repositories. They follow similar tooling and processes to those described
 here. This repo reflects how our components come together.
 
 ## Development Prerequisites

@@ -1,8 +1,8 @@
 # TBD Development Roadmap
 
 Welcome to the TBD Development Roadmap. Here we describe the high-level focus of
-our efforts, chunked into timeboxed deliverables as Milestones. This appraoch 
-lets teams opererate with autonomy, while ensuring that everyone moves in the 
+our efforts, chunked into time-boxed deliverables as Milestones. This approach 
+lets teams operate with autonomy, while ensuring that everyone moves in the 
 same direction.
 
 Milestones are encoded as a set of goals, defined by the 
@@ -34,7 +34,7 @@ Let's go.
 
 ## Milestones
 
-| Milestone | Codename | Ends |
-| --------- | -------- | ---- |
-| [FUTURE](./milestones/MILESTONE_TBD.md) | Onwards | None |
-| [001](./milestones/MILESTONE_001.md) | Bienvenidos a Miami | 05 April 2022 |
+| Milestone                               | Codename            | Ends          |
+|-----------------------------------------|---------------------|---------------|
+| [FUTURE](./milestones/MILESTONE_TBD.md) | Onwards             | None          |
+| [001](./milestones/MILESTONE_001.md)    | Bienvenidos a Miami | 05 April 2022 |

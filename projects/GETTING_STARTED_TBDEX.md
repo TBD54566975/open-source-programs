@@ -8,13 +8,13 @@ Building `tbDEX` as a specification and message format is work that will follow 
 
 This work is led by @csuwildcat. You may engage with our growing community:
 
-| Medium                    | Link |
-| ------------------------- | ---- |
-| User Chat                 | https://discord.com/channels/937858703112155166/949067728709369856 |
-| User Discussions          | Coming very soon |
+| Medium           | Link                                                               |
+|------------------|--------------------------------------------------------------------|
+| User Chat        | https://discord.com/channels/937858703112155166/949067728709369856 |
+| User Discussions | Coming very soon                                                   |
 
 ## tbdex-spec
-| Item                | Link |
-| ------------------- | ---- |
-| Repository          | https://github.com/TBD54566975/tbdex-spec |
-| Issue Tracker       | https://github.com/TBD54566975/tbdex-spec/issues |
+| Item          | Link                                             |
+|---------------|--------------------------------------------------|
+| Repository    | https://github.com/TBD54566975/tbdex-spec        |
+| Issue Tracker | https://github.com/TBD54566975/tbdex-spec/issues |

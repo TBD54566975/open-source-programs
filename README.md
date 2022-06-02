@@ -10,7 +10,7 @@ used for documentation, issues, and discussions that span our individual reposit
 
 All projects in the TBD family are in early prototyping. New contributors should 
 expect a pace of development consistent with nascent technology: larger commits, 
-frequent refactoring, changing APIs, and incomplete featuresets. We believe: _open source
+frequent refactoring, changing APIs, and incomplete feature-sets. We believe: _open source
 is not a publishing medium_. These projects are open from the start to welcome your
 interest, invite discussion, identify early issues, and advise on design. An early
 adopter mindset will work well until these projects mature further.
@@ -70,19 +70,19 @@ The [contribution guide](./CONTRIBUTING.md) welcomes contributors with resources
 
 ## Projects
 
-| Project | Language   | Description |
-| :-------- | :---------- | :------------ |
-| [`ssi-sdk`](https://github.com/TBD54566975/ssi-sdk)                  | Go         | Standards-based primitives for using Decentralized Identifiers and Verifiable Credentials.
-| [`ssi-service`](https://github.com/TBD54566975/ssi-service)          | Go         | An in-a-box service that handles the full Verifiable Credentials lifecycle, including issuance, verification, revocation, and more.
-| [`dwn-sdk-js`](https://github.com/TBD54566975/dwn-sdk-js)            | TypeScript | An implementation of DIF's emerging decentralized personal datastore standard.
-| [`tbdex-protocol`](https://github.com/TBD54566975/tbdex-protocol)    | Java       | A playground as we iterate our way to a robust protocol. Mostly composed of tbDEX message schemas/formats and a mock PFI implemementaion.
+| Project                                                           | Language   | Description                                                                                                                               |
+|:------------------------------------------------------------------|:-----------|:------------------------------------------------------------------------------------------------------------------------------------------|
+| [`ssi-sdk`](https://github.com/TBD54566975/ssi-sdk)               | Go         | Standards-based primitives for using Decentralized Identifiers and Verifiable Credentials.                                                |
+| [`ssi-service`](https://github.com/TBD54566975/ssi-service)       | Go         | An in-a-box service that handles the full Verifiable Credentials lifecycle, including issuance, verification, revocation, and more.       |
+| [`dwn-sdk-js`](https://github.com/TBD54566975/dwn-sdk-js)         | TypeScript | An implementation of the DIF's emerging decentralized personal datastore standard.                                                        |
+| [`tbdex-protocol`](https://github.com/TBD54566975/tbdex-protocol) | Java       | A playground as we iterate our way to a robust protocol. Mostly composed of tbDEX message schemas/formats and a mock PFI implemementaion. |
 
 ## Project Resources
 
-| Resource                                   | Description                                                                    |
-| ------------------------------------------ | ------------------------------------------------------------------------------ |
-| [CODEOWNERS](./CODEOWNERS)                 | Outlines the project lead(s)                                                   |
+| Resource                                   | Description                                                                   |
+|--------------------------------------------|-------------------------------------------------------------------------------|
+| [CODEOWNERS](./CODEOWNERS)                 | Outlines the project lead(s)                                                  |
 | [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) | Expected behavior for project contributors, promoting a welcoming environment |
-| [CONTRIBUTING.md](./CONTRIBUTING.md)       | Developer guide to build, test, run, access CI, chat, discuss, file issues     |
-| [GOVERNANCE.md](./GOVERNANCE.md)           | Project governance                                                             |
-| [LICENSE](./LICENSE)                       | Apache License, Version 2.0                                                    |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)       | Developer guide to build, test, run, access CI, chat, discuss, file issues    |
+| [GOVERNANCE.md](./GOVERNANCE.md)           | Project governance                                                            |
+| [LICENSE](./LICENSE)                       | Apache License, Version 2.0                                                   |
