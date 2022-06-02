@@ -31,7 +31,7 @@ This work is led by @decentralgabe. You may engage with our growing community:
 | Issue Tracker       | https://github.com/TBD54566975/ssi-service/issues                                                  |
 | Good First Issues   | https://github.com/TBD54566975/ssi-service/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22 |
 
-# # Community
+# Community
 
 There are a number of community and standards groups that facilitate the aforementioned SSI work. Below is an
 enumeration of the top level organizations and subgroups that are most relevant to this work:
