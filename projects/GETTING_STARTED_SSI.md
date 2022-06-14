@@ -10,8 +10,8 @@ This work is led by @decentralgabe. You may engage with our growing community:
 |-------------------------|--------------------------------------------------------------------|
 | User Chat               | https://discord.com/channels/937858703112155166/969272692891086868 |
 | Contributor's Chat      | https://discord.com/channels/937858703112155166/981787055103303711 |
-| User Discussions        | Coming very soon                                                   |
-| Contributor Discussions | Coming very soon                                                   |
+| User Discussions        | https://forums.tbd.website/c/self-sovereign-identity-users/5       |
+| Contributor Discussions | https://forums.tbd.website/c/self-sovereign-identity-developers/7  |
 
 ## ssi-sdk
 
