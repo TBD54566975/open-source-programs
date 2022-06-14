@@ -4,12 +4,12 @@ The Decentralized Web Platform provides the base for building decentralized appl
 
 This work is led by @mistermoe. You may engage with our growing community:
 
-| Medium                  | Link                                                               |
-|-------------------------|--------------------------------------------------------------------|
-| User Chat               | https://discord.com/channels/937858703112155166/969272658501976117 |
-| Contributor's Chat      | https://discord.com/channels/937858703112155166/981786445696102430 |
-| User Discussions        | Coming very soon                                                   |
-| Contributor Discussions | Coming very soon                                                   |
+| Medium                  | Link                                                                       |
+|-------------------------|----------------------------------------------------------------------------|
+| User Chat               | https://discord.com/channels/937858703112155166/969272658501976117         |
+| Contributor's Chat      | https://discord.com/channels/937858703112155166/981786445696102430         |
+| User Discussions        | https://forums.tbd.website/c/web5-decentralized-web-platform-users/9       |
+| Contributor Discussions | https://forums.tbd.website/c/web5-decentralized-web-platform-developers/10 |
 
 ## dwn-sdk-js
 | Item                | Link                                                                                                   |
