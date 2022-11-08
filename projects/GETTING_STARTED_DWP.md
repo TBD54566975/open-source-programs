@@ -1,6 +1,6 @@
-# Getting Started with the Decentralized Web Platform (DWP)
+# Getting Started with the Web5 Decentralized Web Platform
 
-The Decentralized Web Platform provides the base for building decentralized applications. The principal component for this project is `dwn-sdk-js`, a JavaScript implementation of the [Decentralized Web Node Specification](https://identity.foundation/decentralized-web-node/spec/). The platform also contains identity services and primitives noted in the [Getting Started with SSI documentation](./GETTING_STARTED_SSI.md)
+The Web5 Decentralized Web Platform provides the base for building decentralized applications. The principal component for this project is `dwn-sdk-js`, a JavaScript implementation of the [Decentralized Web Node Specification](https://identity.foundation/decentralized-web-node/spec/). The platform also contains identity services and primitives noted in the [Getting Started with SSI documentation](./GETTING_STARTED_SSI.md)
 
 This work is led by @mistermoe. You may engage with our growing community:
 
