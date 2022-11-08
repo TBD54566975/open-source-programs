@@ -6,8 +6,8 @@ This work is led by @mistermoe. You may engage with our growing community:
 
 | Medium                  | Link                                                                       |
 |-------------------------|----------------------------------------------------------------------------|
-| User Chat               | https://discord.com/channels/937858703112155166/969272658501976117         |
-| Contributor's Chat      | https://discord.com/channels/937858703112155166/981786445696102430         |
+| User Chat               | https://discord.gg/zasR8MJZRy                                              |
+| Contributor's Chat      | https://discord.gg/tdTJfaWBW2                                              |
 | User Discussions        | https://forums.tbd.website/c/web5-decentralized-web-platform-users/9       |
 | Contributor Discussions | https://forums.tbd.website/c/web5-decentralized-web-platform-developers/10 |
 
