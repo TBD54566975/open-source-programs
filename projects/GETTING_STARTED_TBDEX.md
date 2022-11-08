@@ -10,8 +10,7 @@ This work is led by @csuwildcat. You may engage with our growing community:
 
 | Medium           | Link                                                               |
 |------------------|--------------------------------------------------------------------|
-| User Chat        | https://discord.com/channels/937858703112155166/949067728709369856 |
-| User Discussions | Coming very soon                                                   |
+| User Chat        | https://discord.gg/PmBnEJvKa9                                      |
 
 ## tbdex-spec
 | Item          | Link                                             |
