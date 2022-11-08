@@ -7,8 +7,11 @@ assignees: ''
 
 ---
 
+** Campaign **
+The GitHub Issue labels prefixed `campaign-` denote which area you'd like to improve; please select one that matches closest, or note here what this is about! 
+
 ** Desired outcome **
-We design around _desired outcomes_. What impact do you expect to see if this proposal is fulfilled? 
+We design around _desired outcomes_. What benefit to the TBD community to you expect to see if this proposal is fulfilled? 
 
 ** Current Gaps **
  We can always improve. What needs aren't being met which this proposal looks to address?
