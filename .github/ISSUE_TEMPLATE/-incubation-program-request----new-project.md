@@ -13,6 +13,9 @@ https://developer.tbd.website/blog/announcing-the-incubation-program
 
 2. Fill out the following:
 
+_Description of the project_
+Here.
+
 _Statement of value to the TBD ecosystem (Web5, tbDEX, etc)_
 Here.
 
