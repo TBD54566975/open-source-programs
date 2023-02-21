@@ -15,7 +15,8 @@ collaborative editing is done, its committed to Git.
 | HackMD, Current | Week Starting                                                                   |
 |-----------------|---------------------------------------------------------------------------------|
 |                 | [TEMPLATE](./open-source-programs/weekly/OSP_WEEKLY_SCOPING_TEMPLATE.md)        |
-| ➡️              | [Week of 13 February 2023](./open-source-programs/weekly/osp-weekly-20230213.md)             |
+| ➡️              | [Week of 21 February 2023](https://hackmd.io/_BBCG2h1TNK-APq4UTyYkw)             |
+|                | [Week of 13 February 2023](./open-source-programs/weekly/osp-weekly-20230213.md)             |
 |                | [Week of 6 February 2023](./open-source-programs/weekly/osp-weekly-20230206.md)             |
 |                 | [Week of 30 January 2023](./open-source-programs/weekly/osp-weekly-20230130.md) |
 
