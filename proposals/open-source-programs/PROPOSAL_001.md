@@ -177,4 +177,4 @@ An outline view of how information should be organized. Informs the wireframes, 
 
 ## External Examples
 * [Use Case Approach from Mattr](https://learn.mattr.global/docs/)
-* From @dcrusso: [leverage GitHub Pages to do really simple playground](https://github.com/TBD54566975/web5-components/blob/main/.github/workflows/Pages.yml) NOTE: @bobbilee19 suggests calling this "sandbox". Align on language?
+* From @dcrousso: [leverage GitHub Pages to do really simple playground](https://github.com/TBD54566975/web5-components/blob/main/.github/workflows/Pages.yml) NOTE: @bobbilee19 suggests calling this "sandbox". Align on language?
