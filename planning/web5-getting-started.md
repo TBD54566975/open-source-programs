@@ -11,8 +11,19 @@ Our primary ambition for TBD and Web5’s success is in *building ecosystem*. Ad
 ### Goals
 * Mirror the BTC Miami Messaging and Deliverables for a Global Audience
   * All delivered on developer.tbd.website, with docs and guides for the software we're highlighting
-  * Primary call to action: Build Web5 Applications using Personal Data Stores (DWNs) through the Dev Site
-  * Secondard call to action: Join the Discord community
+  * Primary call to action: Build Web5 Applications using DWNs through the Dev Site
+  * Secondary call to action: Join the Discord community
+* Developer Story
+  * Web5 is a platform that makes decentralized applictaion development easy and secure
+    * Like HTML5, Web5 enhances the web. It adds: privacy, decentralization, and identity.
+    * No need to create your own ad-hoc decentralized network
+    * No need to handle the messy networking to transmit and receive data
+    * Is web-native and can run in any browser
+  * Web5's Personal Data Stores (via the DWN standard) allow developers to create applications where users own their data
+    * ...so app developers don't need to
+    * ...so app customers retain their privacy 
+    * ...and can selectively share that data with others
+  * DWAs (Decentralized Web Applications) are a simple programming model, mirroring [PWAs](https://web.dev/progressive-web-apps/) (Progressive Web Applications) which can be installed directly from the web
 * Priority Deliverables
   * [New Web5 Version](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27187488)
   * [Doc Upgrades for new Web5 Version](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27189248) 
