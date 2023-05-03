@@ -25,15 +25,19 @@ This is a *DRAFT* until socialized and this message is removed.
     * ...so app developers don't need to
     * ...so app customers retain their privacy 
     * ...and can selectively share that data with others
-  * DWAs (Decentralized Web Applications) are a simple programming model, mirroring [PWAs](https://web.dev/progressive-web-apps/) (Progressive Web Applications) which can be installed directly from the web
+  * (Stretch) DWAs (Decentralized Web Applications) are a simple programming model, mirroring [PWAs](https://web.dev/progressive-web-apps/) (Progressive Web Applications) which can be installed directly from the web
 * Priority Deliverables
   * [New Web5 Version](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27187488)
   * [Doc Upgrades for new Web5 Version](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27189248) 
   * [Revamped API Docs for Web5](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27190351)
   * [Create Guide: Start your own DWN Server](https://github.com/TBD54566975/developer.tbd.website/issues/437)
-  * [Create Guide: DWAs and Starter App](https://github.com/TBD54566975/developer.tbd.website/issues/438)
   * [Timeboxed Design pass on Docs Section](https://github.com/TBD54566975/developer.tbd.website/issues/439)
-  * Tutorial around Music Player (stretch)
+  * Example App - Music Player
+    * Needs definition from Daniel
+    * Minimum delivery is link to repo from the Dev Site
+  * Tutorial around Music Player (Stretch)
+    * Depends upon Music Player readiness and timing - Chris DRI DevRel
+  * [Create Guide: DWAs and Starter App](https://github.com/TBD54566975/developer.tbd.website/issues/438) (Stretch)
     * Needs definition from Daniel
   * CTAs
     * SWAG awards, Recognition - for what actions?
