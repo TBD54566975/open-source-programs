@@ -16,7 +16,7 @@ This is a *DRAFT* until socialized and this message is removed.
   * Primary call to action: Build Web5 Applications using DWNs through the Dev Site
   * Secondary call to action: Join the Discord community
 * Developer Story
-  * Web5 is a platform that makes decentralized applictaion development easy and secure
+  * The Web5 Platform makes decentralized applictaion development easy and secure
     * Like HTML5, Web5 enhances the web. It adds: privacy, decentralization, and identity.
     * No need to create your own ad-hoc decentralized network
     * No need to handle the messy networking to transmit and receive data
