@@ -4,6 +4,8 @@ Our primary ambition for TBD and Web5’s success is in *building ecosystem*. Ad
 
 ## Phase 4
 
+This is a *DRAFT* until socialized and this message is removed.
+
 ### Collaboration
 * [Project Board](https://github.com/orgs/TBD54566975/projects/10/views/9)
 * [Discord](https://discord.com/channels/937858703112155166/949067751803191397)
