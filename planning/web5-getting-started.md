@@ -10,6 +10,9 @@ Our primary ambition for TBD and Web5’s success is in *building ecosystem*. Ad
 
 ### Goals
 * Mirror the BTC Miami Messaging and Deliverables for a Global Audience
+  * All delivered on developer.tbd.website, with docs and guides for the software we're highlighting
+  * Primary call to action: Build Web5 Applications using Personal Data Stores (DWNs) through the Dev Site
+  * Secondard call to action: Join the Discord community
 * Priority Deliverables
   * [New Web5 Version](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27187488)
   * [Doc Upgrades for new Web5 Version](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27189248) 
