@@ -21,7 +21,7 @@ This is a *DRAFT* until socialized and this message is removed.
     * No need to create your own ad-hoc decentralized network
     * No need to handle the messy networking to transmit and receive data
     * Is web-native and can run in any browser
-  * Web5's Personal Data Stores (via the DWN standard) allow developers to create applications where users own their data
+  * Web5's personal datastores (via the DWN standard) allow developers to create applications where users own their data
     * ...so app developers don't need to
     * ...so app customers retain their privacy 
     * ...and can selectively share that data with others
