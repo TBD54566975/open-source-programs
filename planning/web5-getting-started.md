@@ -4,8 +4,6 @@ Our primary ambition for TBD and Web5’s success is in *building ecosystem*. Ad
 
 ## Phase 4
 
-This is a *DRAFT* until socialized and this message is removed.
-
 ### Collaboration
 * [Project Board](https://github.com/orgs/TBD54566975/projects/10/views/9)
 * [Discord](https://discord.com/channels/937858703112155166/949067751803191397)
@@ -32,6 +30,8 @@ This is a *DRAFT* until socialized and this message is removed.
   * [Revamped API Docs for Web5](https://github.com/orgs/TBD54566975/projects/10/views/9?pane=issue&itemId=27190351)
   * [Create Guide: Start your own DWN Server](https://github.com/TBD54566975/developer.tbd.website/issues/437)
   * [Timeboxed Design pass on Docs Section](https://github.com/TBD54566975/developer.tbd.website/issues/439)
+  * [Create Contributor landing page](https://github.com/orgs/TBD54566975/projects/10?pane=issue&itemId=27379751)
+  * [Create Feedback Widget for Docs](https://github.com/orgs/TBD54566975/projects/10?pane=issue&itemId=27380375)
   * Example App - Music Player
     * Needs definition from Daniel
     * Minimum delivery is link to repo from the Dev Site
