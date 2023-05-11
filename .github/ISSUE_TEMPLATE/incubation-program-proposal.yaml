@@ -1,0 +1,61 @@
+name: Open Source Incubation Program Proposal
+description: Proposal to include a new project in TBD's Open Source Incubation Program
+title: "[INCUBATION PROGRAM REQUEST] - New Project: "
+labels:
+  - "campaign-contributor-innovation"
+  - "To-Be-triageD"
+assignees:
+  - ALRubinger
+body:
+  - type: textarea
+    id: introduction
+    attributes:
+      label: Introduction
+      value: |
+        Tell us about you, your organization, and your mission!
+    validations:
+      required: true
+  - type: textarea
+    id: statement
+    attributes:
+      label: Proposal
+      value: |
+        Let's hear about your project; please describe your idea and its value to the TBD ecosystem.
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: Existing repository
+      description: Do you have code you can share already?
+    validations:
+      required: false
+  - type: textarea
+    id: userflow
+    attributes:
+      label: User Flow
+      value: |
+        Paste relevant images or screenshots here
+    validations:
+      required: false
+  - type: textarea
+    id: infoflow
+    attributes:
+      label: Information Flow between Services
+      value: |
+        Paste relevant images or screenshots here
+    validations:
+      required: false
+  - type: markdown
+    id: clalink
+    attributes:
+      value: "[Apache 2.0 Contributor License Agrement (CLA)](https://www.apache.org/licenses/contributor-agreements.html)"
+  - type: dropdown
+    id: cla
+    attributes:
+      label: "Contributor License Agreement"
+      description: "If accepted, are you able to sign a CLA?"
+      multiple: false
+      options:
+        - "Yes"
+        - "No"
