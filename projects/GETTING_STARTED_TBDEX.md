@@ -4,7 +4,7 @@
 establishing social trust, utilizing decentralized identity (DID) and verifiable credentials
 (VCs) to establish the provenance of identity in the real world".
 
-Building `tbDEX` as a specification and message format is work that will follow the foundational projects under active development with the [Decentralized Web Platform (DWP)](./GETTING_STARTED_DWP.md).
+Building `tbDEX` as a specification and message format is work that will follow the foundational projects under active development with the [Web5 Platform](./GETTING_STARTED_WEB5.md).
 
 This work is led by @csuwildcat. You may engage with our growing community:
 
