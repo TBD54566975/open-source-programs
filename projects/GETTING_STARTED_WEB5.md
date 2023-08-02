@@ -6,10 +6,7 @@ This work is led by @mistermoe. You may engage with our growing community:
 
 | Medium                  | Link                                                                       |
 |-------------------------|----------------------------------------------------------------------------|
-| User Chat               | https://discord.gg/zasR8MJZRy                                              |
-| Contributor's Chat      | https://discord.gg/tdTJfaWBW2                                              |
-| User Discussions        | https://forums.tbd.website/c/web5-decentralized-web-platform-users/9       |
-| Contributor Discussions | https://forums.tbd.website/c/web5-decentralized-web-platform-developers/10 |
+| User Chat (Discord)     | https://discord.gg/zasR8MJZRy                                              |
 
 ## dwn-sdk-js
 | Item                | Link                                                                                                   |
