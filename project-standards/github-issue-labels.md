@@ -5,5 +5,5 @@ These labels are common throughout the TBD ecosystem. Project leads are encourag
 | Name | Description | Color |
 |------|-------------|-------|
 | `hacktoberfest` | For the hacking month of October | `#D93F0B` |
-| `hacktoberfest-accepted` | Accepted issues for the hacking month of October | `#D93F0B` |
+| `hacktoberfest-accepted` | Accepted PRs for the hacking month of October | `#D93F0B` |
 | `spam` |  | `#FFFFFF` |
