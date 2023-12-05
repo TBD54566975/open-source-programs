@@ -1,7 +1,6 @@
-# TBD Collaboration Repository
+# TBD Open Source Programs
 
-This repository is the welcoming point to TBD's open source efforts. It outlines 
-the tbDEX Protocol and the components which comprise it. 
+This repository is the welcoming point to TBD's open source efforts.
 
 This repository is not a source forge, but a sync point for TBD projects. It's
 used for documentation, issues, and discussions that span our individual repositories.
