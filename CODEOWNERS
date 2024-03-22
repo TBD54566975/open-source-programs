@@ -9,11 +9,7 @@
 # The format is described: https://github.blog/2017-07-06-introducing-code-owners/
 
 # These owners will be the default owners for everything in the repo.
-*       @ALRubinger
-*       @csuwildcat
-*       @decentralgabe
-*       @hdou731
-*       @mistermoe
+* @ALRubinger @leordev @dayhaysoos @finn-tbd
 
 
 # -----------------------------------------------

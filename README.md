@@ -76,6 +76,10 @@ The [contribution guide](./CONTRIBUTING.md) welcomes contributors with resources
 | [`dwn-sdk-js`](https://github.com/TBD54566975/dwn-sdk-js)         | TypeScript | An implementation of the DIF's emerging decentralized personal datastore standard.                                                        |
 | [`tbdex-protocol`](https://github.com/TBD54566975/tbdex-protocol) | Java       | A playground as we iterate our way to a robust protocol. Mostly composed of tbDEX message schemas/formats and a mock PFI implemementaion. |
 
+## Reusable Workflows
+
+TBD uses GitHub Actions for our repository pipelines. Some checks, such as Security and License Scans, are identical across all our project repositories. Therefore, you can find these shared workflows in the [.github/workflows](./.github/workflows) directory.
+
 ## Project Resources
 
 | Resource                                   | Description                                                                   |
