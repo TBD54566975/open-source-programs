@@ -1,0 +1,82 @@
+name: Security and License Scans
+
+on:
+  workflow_call:
+
+jobs:
+  fossa-scan:
+    name: FOSSA Scanning Kickoff
+    runs-on: ubuntu-latest
+    outputs:
+      fossaScanResults: ${{ steps.fossa_test.outputs.results }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Run FOSSA Scan
+        uses: fossas/fossa-action@main
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: Run FOSSA Test
+        id: fossa_test
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: |
+          MAIN_BRANCH="main"
+          MAIN_BRANCH_REF="refs/heads/$MAIN_BRANCH"
+          CURRENT_BRANCH_REF="${{ github.ref }}"
+          DIFF_OPTION=""
+
+          if [ "$CURRENT_BRANCH_REF" != "$MAIN_BRANCH_REF" ]; then
+            git fetch origin $MAIN_BRANCH
+            MAIN_SHA=$(git rev-parse origin/$MAIN_BRANCH)
+            DIFF_OPTION="--diff $MAIN_SHA"
+          fi
+
+          fossa test --format json $DIFF_OPTION | tee fossa-test.json
+
+          FOSSA_RESULTS=$(cat fossa-test.json)
+          if [ -z "$FOSSA_RESULTS" ]; then
+            echo "Failed to generate FOSSA Scanning Results"
+            exit 1
+          fi
+
+          echo "results=$FOSSA_RESULTS" >> $GITHUB_OUTPUT
+
+  fossa-security-check:
+    name: FOSSA Security Check
+    needs: fossa-scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Security Issues
+        run: |
+          ISSUES=$(echo '${{ needs.fossa-scan.outputs.fossaScanResults }}' | jq '.issues | map(select(.type | IN("unlicensed_dependency", "policy_conflict", "policy_flag") | not))')
+          ISSUES_LEN=$(echo $ISSUES | jq length)
+          if [ $ISSUES_LEN -gt 0 ]; then
+            echo "FOSSA Security Check failed"
+            echo "Issues found:\n$ISSUES"
+            cat fossa-test.json
+            exit 1
+          fi
+
+  fossa-license-check:
+    name: FOSSA Licenses Check
+    needs: fossa-scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check License Issues
+        run: |
+          ISSUES=$(echo '${{ needs.fossa-scan.outputs.fossaScanResults }}' | jq '.issues | map(select(.type | IN("unlicensed_dependency", "policy_conflict", "policy_flag")))')
+          ISSUES_LEN=$(echo $ISSUES | jq length)
+          if [ $ISSUES_LEN -gt 0 ]; then
+            echo "FOSSA License Check failed"
+            echo "Issues found: $ISSUES"
+            cat fossa-test.json
+            exit 1
+          fi
