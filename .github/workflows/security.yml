@@ -3,6 +3,8 @@ name: Security and License Scans
 on:
   workflow_call:
 
+permissions: read-all
+
 jobs:
   fossa-scan:
     name: FOSSA Scanning Kickoff
