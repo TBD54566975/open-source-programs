@@ -26,7 +26,7 @@ jobs:
         env:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: |
-          set +x
+          set -x
           DIFF_OPTION=""
           MAIN_BRANCH="main"
           MAIN_BRANCH_REF="refs/heads/$MAIN_BRANCH"
