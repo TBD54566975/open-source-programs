@@ -12,12 +12,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           ref: ${{ github.head_ref }}
 
       - name: Run FOSSA Scan
-        uses: fossas/fossa-action@main
+        uses: fossas/fossa-action@47ef11b1e1e3812e88dae436ccbd2d0cbd1adab0 # v1.3.3
         with:
           api-key: ${{ secrets.FOSSA_API_KEY }}
 
@@ -26,10 +26,13 @@ jobs:
         env:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: |
+          set -x
+          DIFF_OPTION=""
           MAIN_BRANCH="main"
           MAIN_BRANCH_REF="refs/heads/$MAIN_BRANCH"
-          CURRENT_BRANCH_REF="${{ github.ref }}"
-          DIFF_OPTION=""
+
+          CURRENT_BRANCH_REF="${{ github.head_ref || github.ref }}"
+          echo "Current Branch: $CURRENT_BRANCH_REF"
 
           if [ "$CURRENT_BRANCH_REF" != "$MAIN_BRANCH_REF" ]; then
             git fetch origin $MAIN_BRANCH
@@ -60,7 +63,7 @@ jobs:
           if [ $ISSUES_LEN -gt 0 ]; then
             echo "FOSSA Security Check failed"
             echo "Issues found:\n$ISSUES"
-            cat fossa-test.json
+            echo '${{ needs.fossa-scan.outputs.fossaScanResults }}'
             exit 1
           fi
 
@@ -77,6 +80,6 @@ jobs:
           if [ $ISSUES_LEN -gt 0 ]; then
             echo "FOSSA License Check failed"
             echo "Issues found: $ISSUES"
-            cat fossa-test.json
+            echo '${{ needs.fossa-scan.outputs.fossaScanResults }}'
             exit 1
           fi
