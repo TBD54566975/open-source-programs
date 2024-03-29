@@ -1,4 +1,4 @@
-name: Scorecard supply-chain security
+name: Open Source Security Foundation Scorecard
 on:
   workflow_call:
 
