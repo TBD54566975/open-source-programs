@@ -11,6 +11,11 @@ jobs:
       fossaScanResults: ${{ steps.fossa_test.outputs.results }}
 
     steps:
+      - name: verify this is even being used
+        run: |
+          echo "${{ github.head_ref }}"
+          echo "${{ github }}"
+
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
