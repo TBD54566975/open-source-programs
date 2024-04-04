@@ -10,6 +10,8 @@ jobs:
     outputs:
       fossaScanResults: ${{ steps.fossa_test.outputs.results }}
 
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+      
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -55,6 +57,8 @@ jobs:
     needs: fossa-scan
     runs-on: ubuntu-latest
 
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+
     steps:
       - name: Check Security Issues
         run: |
@@ -71,6 +75,8 @@ jobs:
     name: FOSSA Licenses Check
     needs: fossa-scan
     runs-on: ubuntu-latest
+
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
 
     steps:
       - name: Check License Issues
