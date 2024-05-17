@@ -3,6 +3,7 @@ import { Endpoints } from "@octokit/types";
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
+import { readJsonFile, writeJsonFile } from "./utils";
 
 const orgName = "TBD54566975";
 const repos = [
@@ -27,20 +28,6 @@ type ListPullsResponse =
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
-
-// Read JSON data from the file
-function readJsonFile(filePath: string): any {
-  if (fs.existsSync(filePath)) {
-    const data = fs.readFileSync(filePath, "utf8");
-    return JSON.parse(data);
-  }
-  return {};
-}
-
-// Write JSON data to the file
-function writeJsonFile(filePath: string, data: any): void {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-}
 
 // Cache members to avoid rate limiting
 const membersCache: Map<string, boolean> = new Map(

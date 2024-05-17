@@ -3,3 +3,5 @@ temp
 .env
 pr_metrics.json
 pr_metrics.csv
+npm_metrics.json
+npm_metrics.csv
