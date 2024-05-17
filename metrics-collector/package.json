@@ -1,0 +1,22 @@
+{
+  "name": "metrics-collector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/rest": "^20.1.1",
+    "@octokit/types": "^13.5.0",
+    "@types/node": "^20.12.12",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
