@@ -33,7 +33,7 @@ const membersCache: Map<string, boolean> = new Map(
   KNOWN_PAST_MEMBERS.map((kpm) => [kpm, true])
 );
 
-export async function collectPRMetrics(isLocalPersistence: boolean = false) {
+export async function collectGhMetrics(isLocalPersistence: boolean = false) {
   if (!process.env.GITHUB_TOKEN) {
     throw new Error("GITHUB_TOKEN is not set!");
   }
