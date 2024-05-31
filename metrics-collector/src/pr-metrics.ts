@@ -33,6 +33,53 @@ const membersCache: Map<string, boolean> = new Map(
   KNOWN_PAST_MEMBERS.map((kpm) => [kpm, true])
 );
 
+export async function collectPRMetrics(isLocalPersistence: boolean = false) {
+  if (!process.env.GITHUB_TOKEN) {
+    throw new Error("GITHUB_TOKEN is not set!");
+  }
+
+  octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+  });
+
+  console.info(">>> Collecting PR metrics...");
+
+  const metrics = [];
+
+  for (const repoName of repos) {
+    const data = await getPRMetrics(orgName, repoName);
+    const timestamp = new Date().toISOString();
+    const orgRepoName = `${orgName}/${repoName}`;
+    const repoMetrics = {
+      name: orgRepoName,
+      timestamp,
+      ...data,
+    };
+    console.log(repoMetrics);
+    metrics.push(repoMetrics);
+  }
+
+  console.info("GH metrics collected successfully", { metrics });
+
+  if (isLocalPersistence) {
+    const ghLocalMetrics = readJsonFile(dataFilePath);
+    for (const metric of metrics) {
+      if (!ghLocalMetrics[metric.name]) {
+        ghLocalMetrics[metric.name] = [];
+      }
+      ghLocalMetrics[metric.name].push(metric);
+    }
+
+    writeJsonFile(dataFilePath, ghLocalMetrics);
+    await writePRMetricsToCsv(csvDataFilePath, ghLocalMetrics);
+    console.log(
+      `PR Metrics have been successfully persisted to pr_metrics.json and pr_metrics.csv files.`
+    );
+  }
+
+  return metrics;
+}
+
 async function isMember(org: string, username: string): Promise<boolean> {
   if (membersCache.has(username)) {
     return membersCache.get(username) as boolean;
@@ -101,7 +148,10 @@ async function getGitHubRepoMetrics(org: string, repo: string) {
       issues: open_issues_count,
     };
   } catch (error) {
-    console.error(`Error fetching metrics for repository ${org}/${repo}:`, error);
+    console.error(
+      `Error fetching metrics for repository ${org}/${repo}:`,
+      error
+    );
     return {
       stars: 0,
       forks: 0,
@@ -120,7 +170,10 @@ async function getGitHubCloneMetrics(org: string, repo: string) {
     console.info("Clones data >>>> ", data);
     return data;
   } catch (error) {
-    console.error(`Error fetching clone metrics for repository ${org}/${repo}:`, error);
+    console.error(
+      `Error fetching clone metrics for repository ${org}/${repo}:`,
+      error
+    );
     return 0;
   }
 }
@@ -167,7 +220,7 @@ async function getPRMetrics(org: string, repo: string) {
   }
 
   const { stars, forks, issues } = await getGitHubRepoMetrics(org, repo);
-  const {count: clones, uniques} = await getGitHubCloneMetrics(org, repo);
+  const { count: clones, uniques } = await getGitHubCloneMetrics(org, repo);
 
   const prMetrics = {
     repo,
@@ -227,42 +280,10 @@ async function writePRMetricsToCsv(
     append: fs.existsSync(filePath),
   });
 
-  const records = Object.keys(metrics).map((repo) => {
-    const lastItem = metrics[repo][metrics[repo].length - 1];
-    return {
-      timestamp: lastItem.timestamp,
-      repo,
-      ...lastItem.metrics,
-    };
+  const records = Object.keys(metrics).map((orgReponame) => {
+    const lastItem = metrics[orgReponame][metrics[orgReponame].length - 1];
+    return lastItem;
   });
 
   await csvWriter.writeRecords(records);
-}
-
-export async function collectPRMetrics() {
-  if (!process.env.GITHUB_TOKEN) {
-    throw new Error("GITHUB_TOKEN is not set!");
-  }
-
-  octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN,
-  });
-
-  console.info(">>> Collecting PR metrics...");
-  const data = readJsonFile(dataFilePath);
-  for (const repo of repos) {
-    const metrics = await getPRMetrics(orgName, repo);
-    console.log(metrics);
-    const timestamp = new Date().toISOString();
-    if (!data[`${orgName}/${repo}`]) {
-      data[`${orgName}/${repo}`] = [];
-    }
-    data[`${orgName}/${repo}`].push({ timestamp, metrics });
-  }
-
-  writeJsonFile(dataFilePath, data);
-  await writePRMetricsToCsv(csvDataFilePath, data);
-  console.log(
-    `PR Metrics have been successfully persisted to pr_metrics.json and pr_metrics.csv files.`
-  );
 }

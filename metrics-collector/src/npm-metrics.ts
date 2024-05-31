@@ -5,6 +5,7 @@ import { readJsonFile, writeJsonFile } from "./utils";
 
 // Define the npm packages to collect metrics for
 const npmPackages = [
+  "@tbd54566975/dwn-sdk-js",
   "@web5/common",
   "@web5/credentials",
   "@web5/crypto",
@@ -17,19 +18,18 @@ const npmPackages = [
 const dataFilePath = path.join(process.cwd(), "npm_metrics.json");
 const csvFilePath = path.join(process.cwd(), "npm_metrics.csv");
 
-async function collectNpmMetrics() {
-  const npmMetrics = readJsonFile(dataFilePath);
+async function collectNpmMetrics(isLocalPersistence: boolean = false) {
   const timestamp = new Date().toISOString();
+
+  const metrics = [];
 
   for (const pkg of npmPackages) {
     const [lastMonthDownloads, totalDownloads] = await Promise.all([
       getNpmDownloadCount(pkg, true),
       getNpmDownloadCount(pkg),
     ]);
-    if (!npmMetrics[pkg]) {
-      npmMetrics[pkg] = [];
-    }
-    npmMetrics[pkg].push({
+    metrics.push({
+      pkg,
       timestamp,
       publishedAt: totalDownloads.start,
       totalDownloads: totalDownloads.downloads,
@@ -37,11 +37,24 @@ async function collectNpmMetrics() {
     });
   }
 
-  writeJsonFile(dataFilePath, npmMetrics);
-  await writeMetricsToCsv(csvFilePath, npmMetrics);
-  console.log(
-    "NPM metrics have been successfully saved to npm_metrics.json and npm_metrics.csv"
-  );
+  console.info("NPM metrics collected successfully", { metrics });
+
+  if (isLocalPersistence) {
+    const npmMetrics = readJsonFile(dataFilePath);
+    for (const metric of metrics) {
+      if (!npmMetrics[metric.pkg]) {
+        npmMetrics[metric.pkg] = [];
+      }
+      npmMetrics[metric.pkg].push(metric);
+    }
+    writeJsonFile(dataFilePath, npmMetrics);
+    await writeMetricsToCsv(csvFilePath, npmMetrics);
+    console.log(
+      "NPM metrics have been successfully saved to npm_metrics.json and npm_metrics.csv"
+    );
+  }
+
+  return metrics;
 }
 
 async function getNpmDownloadCount(
