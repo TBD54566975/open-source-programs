@@ -7,14 +7,15 @@ import { readJsonFile, writeJsonFile } from "./utils";
 
 const orgName = "TBD54566975";
 const repos = [
-  "tbdex-swift",
-  "tbdex-kt",
   "tbdex-js",
+  "tbdex-kt",
+  "tbdex-swift",
   "tbdex-rs",
-  "web5-swift",
-  "web5-kt",
   "web5-js",
+  "web5-kt",
+  "web5-swift",
   "web5-rs",
+  "dwn-sdk-js",
 ];
 
 const KNOWN_PAST_MEMBERS = ["amika-sq"];
@@ -25,9 +26,7 @@ const csvDataFilePath = path.join(process.cwd(), "pr_metrics.csv");
 type ListPullsResponse =
   Endpoints["GET /repos/{owner}/{repo}/pulls"]["response"];
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
+let octokit: any;
 
 // Cache members to avoid rate limiting
 const membersCache: Map<string, boolean> = new Map(
@@ -89,6 +88,43 @@ async function getAllPulls(org: string, repo: string) {
   return pulls;
 }
 
+async function getGitHubRepoMetrics(org: string, repo: string) {
+  try {
+    const { data } = await octokit.repos.get({
+      owner: org,
+      repo,
+    });
+    const { stargazers_count, forks_count, open_issues_count } = data;
+    return {
+      stars: stargazers_count,
+      forks: forks_count,
+      issues: open_issues_count,
+    };
+  } catch (error) {
+    console.error(`Error fetching metrics for repository ${org}/${repo}:`, error);
+    return {
+      stars: 0,
+      forks: 0,
+      issues: 0,
+    };
+  }
+}
+
+async function getGitHubCloneMetrics(org: string, repo: string) {
+  try {
+    const { data } = await octokit.repos.getClones({
+      owner: org,
+      repo,
+      per: "day",
+    });
+    console.info("Clones data >>>> ", data);
+    return data;
+  } catch (error) {
+    console.error(`Error fetching clone metrics for repository ${org}/${repo}:`, error);
+    return 0;
+  }
+}
+
 async function getPRMetrics(org: string, repo: string) {
   const pulls = await getAllPulls(org, repo);
 
@@ -130,8 +166,16 @@ async function getPRMetrics(org: string, repo: string) {
     }
   }
 
+  const { stars, forks, issues } = await getGitHubRepoMetrics(org, repo);
+  const {count: clones, uniques} = await getGitHubCloneMetrics(org, repo);
+
   const prMetrics = {
     repo,
+    stars,
+    forks,
+    issues,
+    clones,
+    uniques,
     totalPRs: pulls.length,
     internalPRs,
     externalPRs,
@@ -158,6 +202,11 @@ async function writePRMetricsToCsv(
   const headers = [
     { id: "timestamp", title: "Timestamp" },
     { id: "repo", title: "Repository" },
+    { id: "clones", title: "Clones 14d" },
+    { id: "uniques", title: "Unique Clones 14d" },
+    { id: "stars", title: "Stars" },
+    { id: "forks", title: "Forks" },
+    { id: "issues", title: "Issues" },
     { id: "totalPRs", title: "Total PRs" },
     { id: "internalPRs", title: "Internal PRs" },
     { id: "externalPRs", title: "External PRs" },
@@ -191,6 +240,14 @@ async function writePRMetricsToCsv(
 }
 
 export async function collectPRMetrics() {
+  if (!process.env.GITHUB_TOKEN) {
+    throw new Error("GITHUB_TOKEN is not set!");
+  }
+
+  octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+  });
+
   console.info(">>> Collecting PR metrics...");
   const data = readJsonFile(dataFilePath);
   for (const repo of repos) {
