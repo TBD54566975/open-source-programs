@@ -99,7 +99,7 @@ const seedDb = async () => {
   console.log("Database seeded with fake metrics");
 };
 
-initDb();
+// initDb();
 
 // Collect Metrics Endpoint
 app.post("/api/v1/metrics", async (req: any, res: any) => {
