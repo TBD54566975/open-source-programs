@@ -47,7 +47,7 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ./metrics-collector
-          file: Dockerfile
+          file: ./metrics-collector/Dockerfile
           push: true
           target: ${{ matrix.target }}
           tags: ${{ steps.meta.outputs.tags }}
