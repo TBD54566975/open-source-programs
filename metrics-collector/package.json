@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "service-app": "ts-node src/service-app.ts",
+    "build": "tsc",
+    "start-service": "node build/service-app.js",
+    "dev:service": "ts-node src/service-app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,7 +19,9 @@
     "@types/node": "^20.12.12",
     "csv-writer": "^1.6.0",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "faker": "^6.6.6",
+    "pg": "^8.11.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }

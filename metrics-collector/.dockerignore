@@ -1,0 +1,8 @@
+node_modules
+build
+.pnpm
+.DS_Store
+.git
+.vscode
+*metrics.csv
+*metrics.json

@@ -3,3 +3,4 @@ temp
 .env
 *metrics.json
 *metrics.csv
+build
