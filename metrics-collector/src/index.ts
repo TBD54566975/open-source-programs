@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import { collectPRMetrics } from "./pr-metrics";
 import { collectNpmMetrics } from "./npm-metrics";
+import { collectSonatypeMetrics } from "./sonatype-metrics";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -11,6 +12,7 @@ async function main() {
   try {
     await collectPRMetrics(isLocalPersistence);
     await collectNpmMetrics(isLocalPersistence);
+    await collectSonatypeMetrics(isLocalPersistence);
   } catch (error) {
     console.error(error);
   }
