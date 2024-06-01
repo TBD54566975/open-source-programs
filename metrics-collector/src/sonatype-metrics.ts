@@ -8,24 +8,16 @@ const groupId = "xyz.block";
 const dataFilePath = path.join(process.cwd(), "sonatype_metrics.json");
 const csvFilePath = path.join(process.cwd(), "sonatype_metrics.csv");
 
-const sonatypeUsername = process.env.SONATYPE_USERNAME;
-const sonatypePassword = process.env.SONATYPE_PASSWORD;
-
-if (!sonatypeUsername || !sonatypePassword) {
-  throw new Error(
-    "SONATYPE_USERNAME and SONATYPE_PASSWORD must be set in environment variables."
-  );
-}
-
-const requestHeaders: HeadersInit = {
+const requestHeaders: Record<string, string> = {
   Accept: "application/json",
-  Authorization: "Basic " + btoa(`${sonatypeUsername}:${sonatypePassword}`),
 };
 
 const sonatypeCentralStatsUrl =
   "https://s01.oss.sonatype.org/service/local/stats";
 
 async function collectSonatypeMetrics(isLocalPersistence: boolean = false) {
+  initAuth();
+
   const timestamp = new Date().toISOString();
   const projectId = await getProjectId(groupId);
   const artifacts = await getArtifacts(projectId, groupId);
@@ -64,6 +56,18 @@ async function collectSonatypeMetrics(isLocalPersistence: boolean = false) {
 
   return metrics;
 }
+
+const initAuth = () => {
+  const sonatypeUsername = process.env.SONATYPE_USERNAME;
+  const sonatypePassword = process.env.SONATYPE_PASSWORD;
+  if (!sonatypeUsername || !sonatypePassword) {
+    throw new Error(
+      "SONATYPE_USERNAME and SONATYPE_PASSWORD must be set in environment variables."
+    );
+  }
+  requestHeaders.Authorization =
+    "Basic " + btoa(`${sonatypeUsername}:${sonatypePassword}`);
+};
 
 async function getProjectId(groupId: string): Promise<string> {
   try {

@@ -23,6 +23,10 @@
     "faker": "^6.6.6",
     "pg": "^8.11.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.32"
   }
 }

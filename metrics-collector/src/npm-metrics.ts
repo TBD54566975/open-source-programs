@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
 import { readJsonFile, writeJsonFile } from "./utils";
+import { postMetric } from "./post-metric";
 
 // Define the npm packages to collect metrics for
 const npmPackages = [
@@ -18,7 +19,10 @@ const npmPackages = [
 const dataFilePath = path.join(process.cwd(), "npm_metrics.json");
 const csvFilePath = path.join(process.cwd(), "npm_metrics.csv");
 
-async function collectNpmMetrics(isLocalPersistence: boolean = false) {
+async function collectNpmMetrics(
+  isLocalPersistence: boolean = false,
+  metricDate?: string
+) {
   const timestamp = new Date().toISOString();
 
   const metrics = [];
@@ -28,12 +32,18 @@ async function collectNpmMetrics(isLocalPersistence: boolean = false) {
       getNpmDownloadCount(pkg, true),
       getNpmDownloadCount(pkg),
     ]);
+    let metricDateDownloads;
+    if (metricDate) {
+      metricDateDownloads = await getNpmDownloadCount(pkg, false, metricDate);
+    }
     metrics.push({
       pkg,
       timestamp,
       publishedAt: totalDownloads.start,
       totalDownloads: totalDownloads.downloads,
       lastMonthDownloads: lastMonthDownloads.downloads,
+      metricDate,
+      metricDateDownloads: metricDateDownloads?.downloads,
     });
   }
 
@@ -52,19 +62,44 @@ async function collectNpmMetrics(isLocalPersistence: boolean = false) {
     console.log(
       "NPM metrics have been successfully saved to npm_metrics.json and npm_metrics.csv"
     );
+  } else {
+    await postNpmMetrics(metrics);
   }
 
   return metrics;
 }
 
+async function postNpmMetrics(metrics: any) {
+  for (const metric of metrics) {
+    const labels = {
+      package: metric.pkg,
+    };
+
+    if (metric.metricDate) {
+      const metricDate = new Date(metric.metricDate);
+      await postMetric(
+        "npm_downloads",
+        metric.metricDateDownloads || 0,
+        labels,
+        metricDate
+      );
+    }
+
+    await postMetric("npm_total_downloads", metric.totalDownloads, labels);
+  }
+}
+
 async function getNpmDownloadCount(
   packageName: string,
-  onlyLastMonth?: boolean
+  onlyLastMonth?: boolean,
+  singleDay?: string
 ): Promise<{ downloads: number; start: string }> {
   try {
     let url = `https://api.npmjs.org/downloads/point`;
     if (onlyLastMonth) {
       url += `/last-month/${packageName}`;
+    } else if (singleDay) {
+      url += `/${singleDay}/${packageName}`;
     } else {
       url += `/1970-01-01:2100-01-01/${packageName}`;
     }
