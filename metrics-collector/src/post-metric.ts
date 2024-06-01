@@ -1,4 +1,4 @@
-const metricsServiceAppUrl = 'http://localhost:3001/api/v1' // TODO: change to env
+const metricsServiceAppUrl = process.env.METRICS_SERVICE_APP_HOST_URL;
 
 interface Labels {
   [key: string]: string;
