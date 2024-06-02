@@ -14,3 +14,9 @@ export function readJsonFile(filePath: string): any {
 export function writeJsonFile(filePath: string, data: any): void {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 }
+
+export const getYesterdayDate = () => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return yesterday.toISOString().split("T")[0];
+};

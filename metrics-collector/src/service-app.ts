@@ -34,12 +34,13 @@ const initDb = async () => {
         metric_name VARCHAR(255) NOT NULL,
         value DOUBLE PRECISION NOT NULL,
         labels JSONB,
-        timestamp TIMESTAMPTZ NOT NULL DEFAULT now()
+        metric_timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
     CREATE INDEX IF NOT EXISTS idx_metric_name ON metrics(metric_name);
-    CREATE INDEX IF NOT EXISTS idx_timestamp ON metrics(timestamp);
-    CREATE INDEX IF NOT EXISTS idx_labels ON metrics USING GIN(labels);
+    CREATE INDEX IF NOT EXISTS idx_metric_timestamp ON metrics(metric_timestamp);
+    CREATE INDEX IF NOT EXISTS idx_metric_labels ON metrics USING GIN(labels);
     `;
   await pool.query(createTableQuery);
   console.log("Database initialized");
@@ -84,7 +85,7 @@ const seedDb = async () => {
   );
 
   const insertQuery = `
-    INSERT INTO metrics (metric_name, value, labels, timestamp) VALUES ($1, $2, $3, $4)
+    INSERT INTO metrics (metric_name, value, labels, metric_timestamp) VALUES ($1, $2, $3, $4)
     `;
 
   for (const val of values) {
@@ -114,7 +115,7 @@ app.post("/api/v1/metrics", async (req: any, res: any) => {
 
   try {
     await pool.query(
-      "INSERT INTO metrics (metric_name, value, labels, timestamp) VALUES ($1, $2, $3, $4)",
+      "INSERT INTO metrics (metric_name, value, labels, metric_timestamp) VALUES ($1, $2, $3, $4)",
       [
         metricName,
         value,

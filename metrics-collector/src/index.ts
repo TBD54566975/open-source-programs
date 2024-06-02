@@ -5,7 +5,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import { collectGhMetrics } from "./gh-metrics";
-import { collectNpmMetrics } from "./npm-metrics";
+import { collectNpmMetrics, saveNpmMetrics } from "./npm-metrics";
 import { collectSonatypeMetrics } from "./sonatype-metrics";
 
 const isLocalPersistence = process.env.PERSIST_LOCAL_FILES === "true";
@@ -35,20 +35,26 @@ const argv = yargs(hideBin(process.argv)).options({
 }).argv as Arguments;
 
 async function main() {
-  const collectGh = argv["collect-gh"];
   const collectNpm = argv["collect-npm"];
+  if (collectNpm) {
+    await collectNpmMetrics();
+  }
+
   const collectSonatype = argv["collect-sonatype"];
-
-  const noArgs = !collectGh && !collectNpm && !collectSonatype;
-
-  if (collectGh || noArgs) {
-    await collectGhMetrics(isLocalPersistence);
-  }
-  if (collectNpm || noArgs) {
-    await collectNpmMetrics(isLocalPersistence);
-  }
-  if (collectSonatype || noArgs) {
+  if (collectSonatype) {
     await collectSonatypeMetrics(isLocalPersistence);
+  }
+
+  const collectGh = argv["collect-gh"];
+  if (collectGh) {
+    await collectGhMetrics();
+  }
+
+  const localCollection = !collectGh && !collectNpm && !collectSonatype;
+  if (localCollection) {
+    await saveNpmMetrics();
+    // await saveGhMetrics();
+    // await saveSonatypeMetrics();
   }
 }
 

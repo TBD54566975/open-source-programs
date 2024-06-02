@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
-import { readJsonFile, writeJsonFile } from "./utils";
+import { getYesterdayDate, readJsonFile, writeJsonFile } from "./utils";
 import { postMetric } from "./post-metric";
 
 // Define the npm packages to collect metrics for
@@ -19,10 +19,34 @@ const npmPackages = [
 const dataFilePath = path.join(process.cwd(), "npm_metrics.json");
 const csvFilePath = path.join(process.cwd(), "npm_metrics.csv");
 
-async function collectNpmMetrics(
-  isLocalPersistence: boolean = false,
-  metricDate?: string
-) {
+// Push collected metrics to the metrics service
+export async function collectNpmMetrics() {
+  // Total downloads are everything until yesterday
+  const yesterdayDate = getYesterdayDate();
+
+  for (const pkg of npmPackages) {
+    const { downloads: totalDownloads } = await getNpmDownloadCount(pkg);
+
+    // Collect daily downloads too
+    const { downloads: dailyDownloads } = await getNpmDownloadCount(
+      pkg,
+      false,
+      yesterdayDate
+    );
+
+    postNpmMetrics({
+      pkg,
+      metricDate: new Date(yesterdayDate),
+      totalDownloads: totalDownloads,
+      dailyDownloads: dailyDownloads,
+    });
+  }
+
+  console.info("NPM metrics collected successfully");
+}
+
+// Save collected total downloads and last 30d downloads to a local file
+export async function saveNpmMetrics() {
   const timestamp = new Date().toISOString();
 
   const metrics = [];
@@ -32,61 +56,59 @@ async function collectNpmMetrics(
       getNpmDownloadCount(pkg, true),
       getNpmDownloadCount(pkg),
     ]);
-    let metricDateDownloads;
-    if (metricDate) {
-      metricDateDownloads = await getNpmDownloadCount(pkg, false, metricDate);
-    }
     metrics.push({
       pkg,
       timestamp,
       publishedAt: totalDownloads.start,
       totalDownloads: totalDownloads.downloads,
       lastMonthDownloads: lastMonthDownloads.downloads,
-      metricDate,
-      metricDateDownloads: metricDateDownloads?.downloads,
     });
   }
 
   console.info("NPM metrics collected successfully", { metrics });
 
-  if (isLocalPersistence) {
-    const npmMetrics = readJsonFile(dataFilePath);
-    for (const metric of metrics) {
-      if (!npmMetrics[metric.pkg]) {
-        npmMetrics[metric.pkg] = [];
-      }
-      npmMetrics[metric.pkg].push(metric);
+  const npmMetrics = readJsonFile(dataFilePath);
+  for (const metric of metrics) {
+    if (!npmMetrics[metric.pkg]) {
+      npmMetrics[metric.pkg] = [];
     }
-    writeJsonFile(dataFilePath, npmMetrics);
-    await writeMetricsToCsv(csvFilePath, npmMetrics);
-    console.log(
-      "NPM metrics have been successfully saved to npm_metrics.json and npm_metrics.csv"
-    );
-  } else {
-    await postNpmMetrics(metrics);
+    npmMetrics[metric.pkg].push(metric);
   }
+  writeJsonFile(dataFilePath, npmMetrics);
+  await writeMetricsToCsv(csvFilePath, npmMetrics);
+  console.log(
+    "NPM metrics have been successfully saved to npm_metrics.json and npm_metrics.csv"
+  );
 
   return metrics;
 }
 
-async function postNpmMetrics(metrics: any) {
-  for (const metric of metrics) {
-    const labels = {
-      package: metric.pkg,
-    };
+async function postNpmMetrics(metric: {
+  pkg: string;
+  metricDate: Date;
+  totalDownloads: number;
+  dailyDownloads?: number;
+}) {
+  const labels = {
+    package: metric.pkg,
+  };
 
-    if (metric.metricDate) {
-      const metricDate = new Date(metric.metricDate);
-      await postMetric(
-        "npm_downloads",
-        metric.metricDateDownloads || 0,
-        labels,
-        metricDate
-      );
-    }
-
-    await postMetric("npm_total_downloads", metric.totalDownloads, labels);
+  // Push daily downloads if present
+  if (metric.dailyDownloads !== undefined) {
+    await postMetric(
+      "npm_downloads",
+      metric.dailyDownloads,
+      labels,
+      metric.metricDate
+    );
   }
+
+  await postMetric(
+    "npm_total_downloads",
+    metric.totalDownloads,
+    labels,
+    metric.metricDate
+  );
 }
 
 async function getNpmDownloadCount(
@@ -148,5 +170,3 @@ async function writeMetricsToCsv(
 
   await csvWriter.writeRecords(records);
 }
-
-export { collectNpmMetrics };
