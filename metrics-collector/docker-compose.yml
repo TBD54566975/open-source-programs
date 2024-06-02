@@ -16,6 +16,7 @@ services:
   metrics-service:
     build: .
     container_name: metrics-service
+    command: ["node", "build/service-app.js"]
     environment:
       DB_HOST: postgres
       DB_PORT: 5432

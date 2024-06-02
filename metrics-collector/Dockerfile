@@ -21,6 +21,3 @@ RUN pnpm run build
 
 # Expose the port the app runs on
 EXPOSE 3001
-
-# Command to run the service app
-CMD ["node", "build/service-app.js"]
