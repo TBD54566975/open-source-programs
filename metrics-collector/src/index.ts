@@ -6,7 +6,10 @@ import { hideBin } from "yargs/helpers";
 
 import { collectGhMetrics } from "./gh-metrics";
 import { collectNpmMetrics, saveNpmMetrics } from "./npm-metrics";
-import { collectSonatypeMetrics } from "./sonatype-metrics";
+import {
+  collectSonatypeMetrics,
+  saveSonatypeMetrics,
+} from "./sonatype-metrics";
 import { getYesterdayDate } from "./utils";
 
 const isLocalPersistence = process.env.PERSIST_LOCAL_FILES === "true";
@@ -70,7 +73,19 @@ async function main() {
 
   const collectSonatype = argv["collect-sonatype"];
   if (collectSonatype) {
-    await collectSonatypeMetrics(isLocalPersistence);
+    console.info(
+      `\n\n============\n\n>>> Collecting metrics for Maven Sonatype...`
+    );
+    if (initialLoadFromDate) {
+      await initialLoad(
+        initialLoadFromDate,
+        metricDate,
+        collectSonatypeMetrics,
+        true
+      );
+    } else {
+      await collectSonatypeMetrics(metricDateStr);
+    }
   }
 
   const collectGh = argv["collect-gh"];
@@ -81,22 +96,34 @@ async function main() {
   const localCollection = !collectGh && !collectNpm && !collectSonatype;
   if (localCollection) {
     await saveNpmMetrics();
+    await saveSonatypeMetrics();
     // await saveGhMetrics();
-    // await saveSonatypeMetrics();
   }
 }
 
 async function initialLoad(
   initialLoadFromDate: Date,
   initialLoadToDate: Date,
-  collectMetrics: (metricDate: string) => Promise<void>
+  collectMetrics: (metricDate: string) => Promise<void>,
+  monthlyInterval = false
 ) {
   let date = initialLoadFromDate;
+  if (monthlyInterval) {
+    // Change the date to the first day of the month
+    date.setDate(0);
+  }
+
   while (date <= initialLoadToDate) {
     const dateStr = date.toISOString().split("T")[0];
     console.log(`\n\n>>> Collecting metrics for date: ${dateStr}`);
     await collectMetrics(dateStr);
-    date.setDate(date.getDate() + 1);
+
+    if (monthlyInterval) {
+      // Move to the next month (JS will handle year change automatically)
+      date.setMonth(date.getMonth() + 1);
+    } else {
+      date.setDate(date.getDate() + 1);
+    }
   }
 }
 

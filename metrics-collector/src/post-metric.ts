@@ -34,12 +34,15 @@ export const postMetric = async (
     });
 
     if (!response.ok) {
+      if (response.body) {
+        const error = await response.json();
+        console.error("Errored response body:", { error });
+      }
       throw new Error(`Error posting metric: ${response.statusText}`);
     }
 
-    const data = await response.json();
     console.log("Metric posted successfully:", JSON.stringify(payload));
   } catch (error) {
-    console.error("Error posting metric:", error);
+    console.error("Error posting metric:", error, JSON.stringify(error));
   }
 };

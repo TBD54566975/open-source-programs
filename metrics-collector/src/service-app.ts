@@ -107,7 +107,7 @@ if (!process.env.DB_SKIP_INIT) {
 // Collect Metrics Endpoint
 app.post("/api/v1/metrics", async (req: any, res: any) => {
   const { metricName, value, labels, timestamp } = req.body;
-  if (!metricName || !value) {
+  if (!metricName || value == undefined) {
     return res
       .status(400)
       .send({ error: "Missing required fields: metricName and value" });

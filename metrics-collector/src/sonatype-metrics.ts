@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
 import { readJsonFile, writeJsonFile } from "./utils";
+import { postMetric } from "./post-metric";
 
 // Define the group id to collect metrics for
 const groupId = "xyz.block";
@@ -15,7 +16,54 @@ const requestHeaders: Record<string, string> = {
 const sonatypeCentralStatsUrl =
   "https://s01.oss.sonatype.org/service/local/stats";
 
-async function collectSonatypeMetrics(isLocalPersistence: boolean = false) {
+export async function collectSonatypeMetrics(metricDate: string) {
+  initAuth();
+
+  const projectId = await getProjectId(groupId);
+  const artifacts = await getArtifacts(projectId, groupId);
+
+  for (const artifact of artifacts) {
+    const [rawDownloads, uniqueIPs] = await Promise.all([
+      getArtifactStats(projectId, groupId, artifact, "raw", metricDate),
+      getArtifactStats(projectId, groupId, artifact, "ip", metricDate),
+    ]);
+
+    await postSonatypeMavenMetrics({
+      artifact,
+      metricDate: new Date(metricDate),
+      rawDownloads: rawDownloads.total,
+      uniqueIPs: uniqueIPs.total,
+    });
+  }
+}
+
+async function postSonatypeMavenMetrics(metric: {
+  artifact: string;
+  metricDate: Date;
+  rawDownloads: number;
+  uniqueIPs: number;
+}) {
+  console.info("posting sonatype metric", { metric });
+  const labels = {
+    artifact: metric.artifact,
+  };
+
+  await postMetric(
+    "sonatype_central_stats_downloads",
+    metric.rawDownloads,
+    labels,
+    metric.metricDate
+  );
+
+  await postMetric(
+    "sonatype_central_stats_unique_ips_downloads",
+    metric.uniqueIPs,
+    labels,
+    metric.metricDate
+  );
+}
+
+export async function saveSonatypeMetrics() {
   initAuth();
 
   const timestamp = new Date().toISOString();
@@ -39,20 +87,18 @@ async function collectSonatypeMetrics(isLocalPersistence: boolean = false) {
 
   console.info("Sonatype metrics collected successfully", { metrics });
 
-  if (isLocalPersistence) {
-    const sonatypeMetrics = readJsonFile(dataFilePath);
-    for (const metric of metrics) {
-      if (!sonatypeMetrics[metric.artifact]) {
-        sonatypeMetrics[metric.artifact] = [];
-      }
-      sonatypeMetrics[metric.artifact].push(metric);
+  const sonatypeMetrics = readJsonFile(dataFilePath);
+  for (const metric of metrics) {
+    if (!sonatypeMetrics[metric.artifact]) {
+      sonatypeMetrics[metric.artifact] = [];
     }
-    writeJsonFile(dataFilePath, sonatypeMetrics);
-    await writeMetricsToCsv(csvFilePath, sonatypeMetrics);
-    console.log(
-      "Sonatype metrics have been successfully saved to sonatype_metrics.json and sonatype_metrics.csv"
-    );
+    sonatypeMetrics[metric.artifact].push(metric);
   }
+  writeJsonFile(dataFilePath, sonatypeMetrics);
+  await writeMetricsToCsv(csvFilePath, sonatypeMetrics);
+  console.log(
+    "Sonatype metrics have been successfully saved to sonatype_metrics.json and sonatype_metrics.csv"
+  );
 
   return metrics;
 }
@@ -114,9 +160,12 @@ async function getArtifactStats(
   projectId: string,
   groupId: string,
   artifactId: string,
-  type: string
+  type: string,
+  fromDate?: string
 ): Promise<{ total: number }> {
-  const from = getLastMonthDate();
+  const from = fromDate
+    ? convertDateToLastYearMonth(fromDate)
+    : getLastMonthDate();
   console.info(
     `Fetching ${type} stats for artifact ${artifactId} from ${from}...`
   );
@@ -181,4 +230,11 @@ function getLastMonthDate() {
   return `${lastMonthYear}${String(lastMonth).padStart(2, "0")}`;
 }
 
-export { collectSonatypeMetrics };
+// function to convert YYYY-MM-DD to YYYYMM
+function convertDateToLastYearMonth(date: string) {
+  const lastMonth = new Date(date);
+  // reduce 1 month, JS will automatically adjust the year if needed
+  lastMonth.setMonth(lastMonth.getMonth() - 1);
+  const [year, month] = lastMonth.toISOString().split("T")[0].split("-");
+  return `${year}${month}`;
+}

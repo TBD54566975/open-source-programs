@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
-import { getYesterdayDate, readJsonFile, writeJsonFile } from "./utils";
+import { readJsonFile, writeJsonFile } from "./utils";
 import { postMetric } from "./post-metric";
 
 // Define the npm packages to collect metrics for
@@ -10,7 +10,13 @@ const npmPackages = [
   "@web5/common",
   "@web5/credentials",
   "@web5/crypto",
+  "@web5/crypto-aws-kms",
   "@web5/dids",
+  "@web5/api",
+  "@web5/agent",
+  "@web5/identity-agent",
+  "@web5/proxy-agent",
+  "@web5/user-agent",
   "@tbdex/protocol",
   "@tbdex/http-client",
   "@tbdex/http-server",
