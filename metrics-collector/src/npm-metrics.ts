@@ -20,23 +20,24 @@ const dataFilePath = path.join(process.cwd(), "npm_metrics.json");
 const csvFilePath = path.join(process.cwd(), "npm_metrics.csv");
 
 // Push collected metrics to the metrics service
-export async function collectNpmMetrics() {
-  // Total downloads are everything until yesterday
-  const yesterdayDate = getYesterdayDate();
-
+export async function collectNpmMetrics(metricDate: string) {
   for (const pkg of npmPackages) {
-    const { downloads: totalDownloads } = await getNpmDownloadCount(pkg);
+    const { downloads: totalDownloads } = await getNpmDownloadCount(
+      pkg,
+      false,
+      { begin: "1970-01-01", end: metricDate }
+    );
 
     // Collect daily downloads too
     const { downloads: dailyDownloads } = await getNpmDownloadCount(
       pkg,
       false,
-      yesterdayDate
+      { begin: metricDate, end: metricDate }
     );
 
     postNpmMetrics({
       pkg,
-      metricDate: new Date(yesterdayDate),
+      metricDate: new Date(metricDate),
       totalDownloads: totalDownloads,
       dailyDownloads: dailyDownloads,
     });
@@ -114,14 +115,14 @@ async function postNpmMetrics(metric: {
 async function getNpmDownloadCount(
   packageName: string,
   onlyLastMonth?: boolean,
-  singleDay?: string
+  dateRange?: { begin: string; end: string }
 ): Promise<{ downloads: number; start: string }> {
   try {
     let url = `https://api.npmjs.org/downloads/point`;
     if (onlyLastMonth) {
       url += `/last-month/${packageName}`;
-    } else if (singleDay) {
-      url += `/${singleDay}/${packageName}`;
+    } else if (dateRange) {
+      url += `/${dateRange.begin}:${dateRange.end}/${packageName}`;
     } else {
       url += `/1970-01-01:2100-01-01/${packageName}`;
     }
