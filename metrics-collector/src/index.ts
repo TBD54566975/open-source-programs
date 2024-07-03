@@ -97,7 +97,7 @@ async function main() {
   if (localCollection) {
     await saveNpmMetrics();
     await saveSonatypeMetrics();
-    // await saveGhMetrics();
+    await collectGhMetrics(true);
   }
 }
 
