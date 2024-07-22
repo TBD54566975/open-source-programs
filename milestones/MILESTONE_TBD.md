@@ -1,20 +1,11 @@
 # Future Milestone Ideas
 
-### Technical Vision
+Future milestone ideas reflect goals and community benefit 
+still to be slated in a Milestone.
 
-`Bienvenidos a Miami` delivers a minimally-working `tbDEX` system. Its purpose
-is three-fold:
+## Goals
 
-* Prove the architecture through running code
-* Demonstrate the approaches taken
-* Act as the first functional starting point for discussion and evolution
-
-Integration takes precedence over feature depth. We'll be releasing the minimum
-viable components which communicate together to solve the Team Goal.
-
-## Team Goals
-
-### Capabilities
+## Use Cases for Examples
 
 * User may create a DID
 * User may apply for and receive a verifiable credential
