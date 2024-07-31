@@ -9,15 +9,18 @@ let octokit;
 
 const orgName = "TBD54566975";
 const repos = [
+    "tbdex",
     "tbdex-js",
     "tbdex-kt",
     "tbdex-swift",
     "tbdex-rs",
+    "web5-spec",
     "web5-js",
     "web5-kt",
     "web5-swift",
     "web5-rs",
-    // "dwn-sdk-js",
+    "dwn-sdk-js",
+    "dwn-server",
 ];
 
 const KNOWN_PAST_MEMBERS = ["amika-sq"];
@@ -26,7 +29,7 @@ const KNOWN_BOTS = ['codecov-commenter', 'dependabot[bot]', 'renovate[bot]'];
 
 // Cache members to avoid rate limiting
 const membersCache = new Map(
-    KNOWN_PAST_MEMBERS.map((kpm) => [kpm, true])
+    KNOWN_PAST_MEMBERS.map((kpm) => [kpm, 'org'])
 );
 
 async function fetchIssues(owner, repo) {
@@ -93,8 +96,8 @@ async function isMember(org, user) {
 
     if (user.type === 'Bot' || KNOWN_BOTS.includes(user.login)) {
         console.info("Skipping bot", user.login);
-        membersCache.set(username, true);
-        return true;
+        membersCache.set(username, 'bot');
+        return 'bot';
     }
 
     try {
@@ -105,9 +108,9 @@ async function isMember(org, user) {
         if (res.status === 302) {
             throw new Error("Forbidden to check membership!");
         } else if (res.status === 204) {
-            membersCache.set(username, true);
+            membersCache.set(username, 'org');
             console.info("member found in org", username);
-            return true;
+            return 'org';
         } else {
             console.info("member not found in org", username);
             membersCache.set(username, false);
@@ -134,12 +137,15 @@ async function aggregateData(owner, repo) {
     console.info(`Fetched ${issues.length} issues, ${prs.length} PRs, and ${comments.length} comments for ${owner}/${repo}`);
 
     const now = moment();
-    const beginningTime = now.clone().subtract(3, 'months');
+    const beginningTime = now.clone().subtract(4, 'months');
 
     const monthlyData = {
         issues: {},
+        internalMemberIssues: {},
         prs: {},
-        comments: {}
+        internalMemberPrs: {},
+        comments: {},
+        internalMemberComments: {},
     };
 
     function addToMonthlyData(type, date) {
@@ -151,7 +157,9 @@ async function aggregateData(owner, repo) {
     console.info("Computing issues numbers...");
     for (const issue of issues) {
         const member = await isMember(owner, issue.user);
-        if (!member && moment(issue.created_at).isAfter(beginningTime)) {
+        if (member === 'org') {
+            addToMonthlyData('internalMemberIssues', issue.created_at);
+        } else if (member !== 'bot') {
             addToMonthlyData('issues', issue.created_at);
             // print issue details with link
             console.info(`[${issue.user.login}]: ${issue.title} (${issue.html_url})`);
@@ -161,7 +169,9 @@ async function aggregateData(owner, repo) {
     console.info("Computing PRs numbers...");
     for (const pr of prs) {
         const member = await isMember(owner, pr.user);
-        if (!member && moment(pr.created_at).isAfter(beginningTime)) {
+        if (member === 'org') {
+            addToMonthlyData('internalMemberPrs', pr.created_at);
+        } else if (member !== 'bot') {
             addToMonthlyData('prs', pr.created_at);
             // print PR details with link
             console.info(`[${pr.user.login}]: ${pr.title} (${pr.html_url})`);
@@ -171,7 +181,9 @@ async function aggregateData(owner, repo) {
     console.info("Computing comments numbers...");
     for (const comment of comments) {
         const member = await isMember(owner, comment.user);
-        if (!member && moment(comment.created_at).isAfter(beginningTime)) {
+        if (member === 'org') {
+            addToMonthlyData('internalMemberComments', comment.created_at);
+        } else if (member !== 'bot') {
             addToMonthlyData('comments', comment.created_at);
             // print comment details with link
             console.info(`[${comment.user.login}]: ${comment.body.substring(0, 48)}... (${comment.html_url})`);
