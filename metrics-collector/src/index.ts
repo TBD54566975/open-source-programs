@@ -14,6 +14,12 @@ import { getYesterdayDate } from "./utils";
 
 const isLocalPersistence = process.env.PERSIST_LOCAL_FILES === "true";
 
+const TIMEOUT = 30 * 60 * 1000;
+setTimeout(() => {
+  console.error("Execution timed out after", TIMEOUT / 60000, "minutes");
+  process.exit(1);
+}, TIMEOUT);
+
 interface Arguments {
   "collect-gh": boolean;
   "collect-npm": boolean;
@@ -99,6 +105,9 @@ async function main() {
     await saveSonatypeMetrics();
     await collectGhMetrics(true);
   }
+
+  console.log("Data collection completed successfully");
+  process.exit(0);
 }
 
 async function initialLoad(
