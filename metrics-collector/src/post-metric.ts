@@ -24,25 +24,21 @@ export const postMetric = async (
     timestamp: (timestamp || new Date()).toISOString(),
   };
 
-  try {
-    const response = await fetch(`${metricsServiceAppUrl}/metrics`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+  const response = await fetch(`${metricsServiceAppUrl}/metrics`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 
-    if (!response.ok) {
-      if (response.body) {
-        const error = await response.json();
-        console.error("Errored response body:", { error });
-      }
-      throw new Error(`Error posting metric: ${response.statusText}`);
+  if (!response.ok) {
+    if (response.body) {
+      const error = await response.json();
+      console.error("Errored response body:", { error });
     }
-
-    console.log("Metric posted successfully:", JSON.stringify(payload));
-  } catch (error) {
-    console.error("Error posting metric:", error, JSON.stringify(error));
+    throw new Error(`Error posting metric: ${response.statusText}`);
   }
+
+  console.info("Metric posted successfully:", JSON.stringify(payload));
 };

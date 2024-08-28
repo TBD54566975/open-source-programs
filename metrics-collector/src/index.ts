@@ -96,18 +96,19 @@ async function main() {
 
   const collectGh = argv["collect-gh"];
   if (collectGh) {
+    console.info(`\n\n============\n\n>>> Collecting metrics for GitHub...`);
     await collectGhMetrics();
   }
 
   const localCollection = !collectGh && !collectNpm && !collectSonatype;
   if (localCollection) {
-    await saveNpmMetrics();
-    await saveSonatypeMetrics();
+    console.info(
+      `\n\n============\n\n>>> Collecting local metrics...`
+    );
+    // await saveNpmMetrics();
+    // await saveSonatypeMetrics();
     await collectGhMetrics(true);
   }
-
-  console.log("Data collection completed successfully");
-  process.exit(0);
 }
 
 async function initialLoad(
@@ -136,4 +137,10 @@ async function initialLoad(
   }
 }
 
-main();
+main().then(() => {
+  console.log("Data collection completed successfully");
+  process.exit(0);
+}).catch((error) => {
+  console.error("Data collection failed", error);
+  process.exit(1);
+});

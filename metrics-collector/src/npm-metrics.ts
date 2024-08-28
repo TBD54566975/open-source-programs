@@ -26,7 +26,7 @@ const dataFilePath = path.join(process.cwd(), "npm_metrics.json");
 const csvFilePath = path.join(process.cwd(), "npm_metrics.csv");
 
 // Push collected metrics to the metrics service
-export async function collectNpmMetrics(metricDate: string) {
+export const collectNpmMetrics = async (metricDate: string) => {
   for (const pkg of npmPackages) {
     const { downloads: totalDownloads } = await getNpmDownloadCount(
       pkg,
@@ -41,7 +41,9 @@ export async function collectNpmMetrics(metricDate: string) {
       { begin: metricDate, end: metricDate }
     );
 
-    postNpmMetrics({
+    console.info(`\n\n============\n\n>>> Collected metrics for ${pkg}...`);
+
+    await postNpmMetrics({
       pkg,
       metricDate: new Date(metricDate),
       totalDownloads: totalDownloads,
