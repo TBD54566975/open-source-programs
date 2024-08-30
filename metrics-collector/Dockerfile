@@ -19,5 +19,8 @@ COPY . .
 # Build the TypeScript code
 RUN pnpm run build
 
+# Create a directory for storing state data
+RUN mkdir -p /usr/src/app/data
+
 # Expose the port the app runs on
 EXPOSE 3001

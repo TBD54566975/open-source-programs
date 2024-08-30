@@ -12,7 +12,7 @@ import {
 } from "./sonatype-metrics";
 import { getYesterdayDate, readJsonFile } from "./utils";
 import { readFile, writeFile } from "fs/promises";
-import { existsSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 
 const isLocalPersistence = process.env.PERSIST_LOCAL_FILES === "true";
 
@@ -152,8 +152,7 @@ async function initialLoad(
 }
 
 export const getLastSavedState = async (metricName: string) => {
-  const stateDir = process.env.LAST_SAVED_STATE_PATH || "./";
-  const filePath = `${stateDir}/last-saved-state-${metricName}`;
+  const filePath = `./data/last-saved-state-${metricName}`;
   if (!existsSync(filePath)) {
     return undefined;
   }
@@ -162,8 +161,11 @@ export const getLastSavedState = async (metricName: string) => {
 };
 
 export const saveLastSavedState = (metricName: string, date: Date) => {
-  const stateDir = process.env.LAST_SAVED_STATE_PATH || "./";
-  const filePath = `${stateDir}/last-saved-state-${metricName}`;
+  const dataDir = "./data";
+  if (!existsSync(dataDir)) {
+    mkdirSync(dataDir, { recursive: true });
+  }
+  const filePath = `${dataDir}/last-saved-state-${metricName}`;
   return writeFile(filePath, date.toISOString());
 };
 

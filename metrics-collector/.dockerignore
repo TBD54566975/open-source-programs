@@ -6,3 +6,4 @@ build
 .vscode
 *metrics.csv
 *metrics.json
+data
