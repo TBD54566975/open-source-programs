@@ -7,15 +7,18 @@ import { readJsonFile, writeJsonFile } from "./utils";
 
 const orgName = "TBD54566975";
 const repos = [
+  "tbdex",
   "tbdex-js",
   "tbdex-kt",
   "tbdex-swift",
   "tbdex-rs",
+  "web5-spec",
   "web5-js",
   "web5-kt",
   "web5-swift",
   "web5-rs",
   "dwn-sdk-js",
+  "dwn-server",
 ];
 
 const KNOWN_PAST_MEMBERS = ["amika-sq"];

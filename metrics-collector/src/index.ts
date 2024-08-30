@@ -5,12 +5,14 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import { collectGhMetrics } from "./gh-metrics";
-import { collectNpmMetrics, saveNpmMetrics } from "./npm-metrics";
+import { collectNpmMetrics } from "./npm-metrics";
 import {
   collectSonatypeMetrics,
   saveSonatypeMetrics,
 } from "./sonatype-metrics";
-import { getYesterdayDate } from "./utils";
+import { getYesterdayDate, readJsonFile } from "./utils";
+import { readFile, writeFile } from "fs/promises";
+import { existsSync } from "fs";
 
 const isLocalPersistence = process.env.PERSIST_LOCAL_FILES === "true";
 
@@ -71,7 +73,12 @@ async function main() {
   if (collectNpm) {
     console.info(`\n\n============\n\n>>> Collecting metrics for NPM...`);
     if (initialLoadFromDate) {
-      await initialLoad(initialLoadFromDate, metricDate, collectNpmMetrics);
+      await initialLoad(
+        "npm-metrics",
+        initialLoadFromDate,
+        metricDate,
+        collectNpmMetrics
+      );
     } else {
       await collectNpmMetrics(metricDateStr);
     }
@@ -84,6 +91,7 @@ async function main() {
     );
     if (initialLoadFromDate) {
       await initialLoad(
+        "sonatype-metrics",
         initialLoadFromDate,
         metricDate,
         collectSonatypeMetrics,
@@ -102,22 +110,28 @@ async function main() {
 
   const localCollection = !collectGh && !collectNpm && !collectSonatype;
   if (localCollection) {
-    console.info(
-      `\n\n============\n\n>>> Collecting local metrics...`
-    );
+    console.info(`\n\n============\n\n>>> Collecting local metrics...`);
     // await saveNpmMetrics();
     // await saveSonatypeMetrics();
     await collectGhMetrics(true);
+    // await saveNpmMetrics();
+    await saveSonatypeMetrics();
+    // await collectGhMetrics(true);
   }
 }
 
 async function initialLoad(
+  metricName: string,
   initialLoadFromDate: Date,
   initialLoadToDate: Date,
   collectMetrics: (metricDate: string) => Promise<void>,
-  monthlyInterval = false
+  monthlyInterval = false,
+  skipLastSavedState = false
 ) {
-  let date = initialLoadFromDate;
+  const lastSavedState =
+    !skipLastSavedState && (await getLastSavedState(metricName));
+  const date = lastSavedState || initialLoadFromDate;
+
   if (monthlyInterval) {
     // Change the date to the first day of the month
     date.setDate(0);
@@ -125,22 +139,40 @@ async function initialLoad(
 
   while (date <= initialLoadToDate) {
     const dateStr = date.toISOString().split("T")[0];
-    console.log(`\n\n>>> Collecting metrics for date: ${dateStr}`);
+    console.log(`\n\n>>> Collecting metric ${metricName} for date: ${dateStr}`);
     await collectMetrics(dateStr);
-
     if (monthlyInterval) {
       // Move to the next month (JS will handle year change automatically)
       date.setMonth(date.getMonth() + 1);
     } else {
       date.setDate(date.getDate() + 1);
     }
+    await saveLastSavedState(metricName, date);
   }
 }
 
-main().then(() => {
-  console.log("Data collection completed successfully");
-  process.exit(0);
-}).catch((error) => {
-  console.error("Data collection failed", error);
-  process.exit(1);
-});
+export const getLastSavedState = async (metricName: string) => {
+  const stateDir = process.env.LAST_SAVED_STATE_PATH || "./";
+  const filePath = `${stateDir}/last-saved-state-${metricName}`;
+  if (!existsSync(filePath)) {
+    return undefined;
+  }
+  const lastSavedState = await readFile(filePath);
+  return new Date(lastSavedState.toString("utf8"));
+};
+
+export const saveLastSavedState = (metricName: string, date: Date) => {
+  const stateDir = process.env.LAST_SAVED_STATE_PATH || "./";
+  const filePath = `${stateDir}/last-saved-state-${metricName}`;
+  return writeFile(filePath, date.toISOString());
+};
+
+main()
+  .then(() => {
+    console.log("Data collection completed successfully");
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error("Data collection failed", error);
+    process.exit(1);
+  });

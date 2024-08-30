@@ -35,12 +35,24 @@ const initDb = async () => {
         value DOUBLE PRECISION NOT NULL,
         labels JSONB,
         metric_timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
-        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ
     );
 
     CREATE INDEX IF NOT EXISTS idx_metric_name ON metrics(metric_name);
     CREATE INDEX IF NOT EXISTS idx_metric_timestamp ON metrics(metric_timestamp);
     CREATE INDEX IF NOT EXISTS idx_metric_labels ON metrics USING GIN(labels);
+
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint 
+            WHERE conname = 'metrics_unique_constraint'
+        ) THEN
+            ALTER TABLE metrics ADD CONSTRAINT metrics_unique_constraint 
+            UNIQUE (metric_name, labels, metric_timestamp);
+        END IF;
+    END $$;
     `;
   await pool.query(createTableQuery);
   console.log("Database initialized");
@@ -84,12 +96,20 @@ const seedDb = async () => {
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
 
-  const insertQuery = `
-    INSERT INTO metrics (metric_name, value, labels, metric_timestamp) VALUES ($1, $2, $3, $4)
+  const upsertQuery = `
+    INSERT INTO metrics (metric_name, value, labels, metric_timestamp) 
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (metric_name, labels, metric_timestamp)
+      DO UPDATE SET 
+        value = EXCLUDED.value, 
+        updated_at = CASE 
+          WHEN metrics.value = EXCLUDED.value THEN metrics.updated_at 
+          ELSE now() 
+        END
     `;
 
   for (const val of values) {
-    await pool.query(insertQuery, [
+    await pool.query(upsertQuery, [
       val.metricName,
       val.value,
       val.labels,
@@ -106,7 +126,7 @@ if (!process.env.DB_SKIP_INIT) {
 
 // Collect Metrics Endpoint
 app.post("/api/v1/metrics", async (req: any, res: any) => {
-  const { metricName, value, labels, timestamp } = req.body;
+  const { metricName, value, labels, timestamp, operation = "set" } = req.body;
   if (!metricName || value == undefined) {
     return res
       .status(400)
@@ -114,21 +134,59 @@ app.post("/api/v1/metrics", async (req: any, res: any) => {
   }
 
   try {
-    await pool.query(
-      "INSERT INTO metrics (metric_name, value, labels, metric_timestamp) VALUES ($1, $2, $3, $4)",
-      [
+    let query;
+
+    switch (operation) {
+      case "inc":
+        query = `
+          INSERT INTO metrics (metric_name, value, labels, metric_timestamp)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (metric_name, labels, metric_timestamp)
+          DO UPDATE SET 
+            value = metrics.value + EXCLUDED.value,
+            updated_at = CASE 
+              WHEN metrics.value = metrics.value + EXCLUDED.value THEN metrics.updated_at 
+              ELSE now() 
+            END
+        `;
+        break;
+      case "set":
+        query = `
+          INSERT INTO metrics (metric_name, value, labels, metric_timestamp)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (metric_name, labels, metric_timestamp)
+          DO UPDATE SET 
+            value = EXCLUDED.value, 
+            updated_at = CASE 
+              WHEN metrics.value = EXCLUDED.value THEN metrics.updated_at 
+              ELSE now() 
+            END
+        `;
+        break;
+      default:
+        throw new Error(`Unsupported operation: ${operation}`);
+    }
+
+    const params = [
+      metricName,
+      value,
+      labels || undefined,
+      timestamp || new Date().toISOString(),
+    ];
+
+    await pool.query(query, params);
+
+    console.info(
+      `>>> Metric ${operation}: ${JSON.stringify({
         metricName,
         value,
-        labels || undefined,
-        timestamp || new Date().toISOString(),
-      ]
+        labels,
+        timestamp,
+      })}`
     );
-    console.info(
-      ">>> Metric collected: ",
-      JSON.stringify({ metricName, value, labels, timestamp })
-    );
-    res.status(201).send({ message: "Metric collected" });
+    res.status(201).send();
   } catch (err) {
+    console.error("Failed to collect metric", err);
     res.status(500).send({ error: "Failed to collect metric" });
   }
 });

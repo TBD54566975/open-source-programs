@@ -72,17 +72,32 @@ export async function saveSonatypeMetrics() {
   const metrics = [];
 
   for (const artifact of artifacts) {
-    const [rawDownloads, uniqueIPs] = await Promise.all([
-      getArtifactStats(projectId, groupId, artifact, "raw"),
-      getArtifactStats(projectId, groupId, artifact, "ip"),
-    ]);
+    if (!["tbdex", "web5"].find((a) => artifact.includes(a))) {
+      continue;
+    }
 
-    metrics.push({
+    const rawDownloads = await getArtifactStats(
+      projectId,
+      groupId,
+      artifact,
+      "raw"
+    );
+    const uniqueIPs = await getArtifactStats(
+      projectId,
+      groupId,
+      artifact,
+      "ip"
+    );
+
+    const artifactMetrics = {
       artifact,
       timestamp,
       rawDownloads: rawDownloads.total,
       uniqueIPs: uniqueIPs.total,
-    });
+    };
+    console.info({ [artifact]: artifactMetrics });
+    metrics.push(artifactMetrics);
+    await new Promise((resolve) => setTimeout(resolve, 5000)); // prevent rate limit
   }
 
   console.info("Sonatype metrics collected successfully", { metrics });
@@ -180,8 +195,19 @@ async function getArtifactStats(
       }
     );
 
-    const data = await response.json();
-    return data.data;
+    const responseText = await response.text();
+    try {
+      const data = JSON.parse(responseText);
+      return data.data;
+    } catch (error) {
+      console.error(
+        "Failed to parse response as JSON:",
+        response.status,
+        response.statusText,
+        responseText
+      );
+      throw new Error("Unable to parse response as JSON");
+    }
   } catch (error) {
     console.error(
       `Error fetching ${type} stats for artifact ${artifactId}:`,

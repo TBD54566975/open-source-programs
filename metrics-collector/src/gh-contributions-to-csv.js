@@ -20,12 +20,11 @@ function extractData(data) {
 
     // Collect all months from all projects
     projects.forEach(project => {
-        data[project].forEach(entry => {
-            const { data } = entry;
-            Object.values(data).forEach(item => {
-                Object.keys(item).forEach(month => {
-                    allMonths.add(month);
-                });
+        const lastEntry = data[project][data[project].length - 1];
+        const { data: lastEntryData } = lastEntry;
+        Object.values(lastEntryData).forEach(item => {
+            Object.keys(item).forEach(month => {
+                allMonths.add(month);
             });
         });
     });
