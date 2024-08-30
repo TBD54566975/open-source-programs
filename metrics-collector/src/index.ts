@@ -66,7 +66,7 @@ async function main() {
 
   const metricDate = new Date(metricDateStr);
   const initialLoadFromDate = initialLoadFrom
-    ? new Date(initialLoadFrom)
+    ? new Date(`${initialLoadFrom}T00:00:00.000Z`)
     : undefined;
 
   const collectNpm = argv["collect-npm"];
@@ -132,10 +132,15 @@ async function initialLoad(
     !skipLastSavedState && (await getLastSavedState(metricName));
   const date = lastSavedState || initialLoadFromDate;
 
-  if (monthlyInterval) {
-    // Change the date to the first day of the month
-    date.setDate(0);
-  }
+  console.info(
+    `Initial load from ${initialLoadFromDate} to ${initialLoadToDate} with date ${date}`
+  );
+
+  // if (monthlyInterval) {
+  //   // Change the date to the first day of the month
+  //   date.setDate(0);
+  // }
+  // console.info(`Date after setting to first day of the month: ${date}`);
 
   while (date <= initialLoadToDate) {
     const dateStr = date.toISOString().split("T")[0];

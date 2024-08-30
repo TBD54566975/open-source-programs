@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
-import { readJsonFile, writeJsonFile } from "./utils";
+import { fetchWithRetry, readJsonFile, writeJsonFile } from "./utils";
 import { postMetric } from "./post-metric";
 
 // Define the group id to collect metrics for
@@ -23,10 +23,24 @@ export async function collectSonatypeMetrics(metricDate: string) {
   const artifacts = await getArtifacts(projectId, groupId);
 
   for (const artifact of artifacts) {
-    const [rawDownloads, uniqueIPs] = await Promise.all([
-      getArtifactStats(projectId, groupId, artifact, "raw", metricDate),
-      getArtifactStats(projectId, groupId, artifact, "ip", metricDate),
-    ]);
+    if (!["tbdex", "web5"].find((a) => artifact.includes(a))) {
+      continue; // TODO: add parameterized filter
+    }
+
+    const rawDownloads = await getArtifactStats(
+      projectId,
+      groupId,
+      artifact,
+      "raw",
+      metricDate
+    );
+    const uniqueIPs = await getArtifactStats(
+      projectId,
+      groupId,
+      artifact,
+      "ip",
+      metricDate
+    );
 
     await postSonatypeMavenMetrics({
       artifact,
@@ -34,6 +48,8 @@ export async function collectSonatypeMetrics(metricDate: string) {
       rawDownloads: rawDownloads.total,
       uniqueIPs: uniqueIPs.total,
     });
+
+    await new Promise((resolve) => setTimeout(resolve, 5000)); // to avoid Sonatype rate limit
   }
 }
 
@@ -49,14 +65,14 @@ async function postSonatypeMavenMetrics(metric: {
   };
 
   await postMetric(
-    "sonatype_central_stats_downloads",
+    "sonatype_central_stats_downloads_last_month",
     metric.rawDownloads,
     labels,
     metric.metricDate
   );
 
   await postMetric(
-    "sonatype_central_stats_unique_ips_downloads",
+    "sonatype_central_stats_unique_ips_downloads_last_month",
     metric.uniqueIPs,
     labels,
     metric.metricDate
@@ -132,11 +148,14 @@ const initAuth = () => {
 
 async function getProjectId(groupId: string): Promise<string> {
   try {
-    const response = await fetch(`${sonatypeCentralStatsUrl}/projects`, {
-      method: "GET",
-      credentials: "include",
-      headers: requestHeaders,
-    });
+    const response = await fetchWithRetry(
+      `${sonatypeCentralStatsUrl}/projects`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: requestHeaders,
+      }
+    );
 
     const data = await response.json();
     const project = data.data.find((project: any) => project.name === groupId);
@@ -154,7 +173,7 @@ async function getArtifacts(
   groupId: string
 ): Promise<string[]> {
   try {
-    const response = await fetch(
+    const response = await fetchWithRetry(
       `${sonatypeCentralStatsUrl}/coord/${projectId}?g=${groupId}`,
       {
         method: "GET",
@@ -186,7 +205,7 @@ async function getArtifactStats(
   );
 
   try {
-    const response = await fetch(
+    const response = await fetchWithRetry(
       `${sonatypeCentralStatsUrl}/timeline?p=${projectId}&g=${groupId}&a=${artifactId}&t=${type}&from=${from}&nom=1`,
       {
         method: "GET",
@@ -258,6 +277,7 @@ function getLastMonthDate() {
 
 // function to convert YYYY-MM-DD to YYYYMM
 function convertDateToLastYearMonth(date: string) {
+  console.info(`Converting date ${date} to last year month`);
   const lastMonth = new Date(date);
   // reduce 1 month, JS will automatically adjust the year if needed
   lastMonth.setMonth(lastMonth.getMonth() - 1);

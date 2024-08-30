@@ -1,3 +1,5 @@
+import { fetchWithRetry } from "./utils";
+
 const metricsServiceAppUrl = process.env.METRICS_SERVICE_APP_HOST_URL;
 
 interface Labels {
@@ -24,7 +26,7 @@ export const postMetric = async (
     timestamp: (timestamp || new Date()).toISOString(),
   };
 
-  const response = await fetch(`${metricsServiceAppUrl}/metrics`, {
+  const response = await fetchWithRetry(`${metricsServiceAppUrl}/metrics`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
