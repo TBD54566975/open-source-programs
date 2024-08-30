@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
-import { readJsonFile, writeJsonFile } from "./utils";
+import { fetchWithRetry, readJsonFile, writeJsonFile } from "./utils";
 import { postMetric } from "./post-metric";
 
 // Define the npm packages to collect metrics for
@@ -52,7 +52,7 @@ export const collectNpmMetrics = async (metricDate: string) => {
   }
 
   console.info("NPM metrics collected successfully");
-}
+};
 
 // Save collected total downloads and last 30d downloads to a local file
 export async function saveNpmMetrics() {
@@ -125,25 +125,22 @@ async function getNpmDownloadCount(
   onlyLastMonth?: boolean,
   dateRange?: { begin: string; end: string }
 ): Promise<{ downloads: number; start: string }> {
-  try {
-    let url = `https://api.npmjs.org/downloads/point`;
-    if (onlyLastMonth) {
-      url += `/last-month/${packageName}`;
-    } else if (dateRange) {
-      url += `/${dateRange.begin}:${dateRange.end}/${packageName}`;
-    } else {
-      url += `/1970-01-01:2100-01-01/${packageName}`;
-    }
+  let url = `https://api.npmjs.org/downloads/point`;
+  if (onlyLastMonth) {
+    url += `/last-month/${packageName}`;
+  } else if (dateRange) {
+    url += `/${dateRange.begin}:${dateRange.end}/${packageName}`;
+  } else {
+    url += `/1970-01-01:2100-01-01/${packageName}`;
+  }
 
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+  try {
+    const response = await fetchWithRetry(url);
     const data = await response.json();
     return data;
   } catch (error) {
     console.error(
-      `Error fetching download count for package ${packageName}:`,
+      `Error fetching download count for package ${packageName} from ${url}:`,
       error
     );
     throw error;
