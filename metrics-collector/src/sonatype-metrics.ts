@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
+import { parse, format, subMonths } from "date-fns";
 import { fetchWithRetry, readJsonFile, writeJsonFile } from "./utils";
 import { postMetric } from "./post-metric";
 
@@ -27,24 +28,28 @@ export async function collectSonatypeMetrics(metricDate: string) {
       continue; // TODO: add parameterized filter
     }
 
+    const reportPeriod = getLastMonthPeriod(metricDate);
+    const reportPeriodWithoutHyphen = reportPeriod.replace("-", "");
+
     const rawDownloads = await getArtifactStats(
       projectId,
       groupId,
       artifact,
       "raw",
-      metricDate
+      reportPeriodWithoutHyphen
     );
     const uniqueIPs = await getArtifactStats(
       projectId,
       groupId,
       artifact,
       "ip",
-      metricDate
+      reportPeriodWithoutHyphen
     );
 
     await postSonatypeMavenMetrics({
       artifact,
       metricDate: new Date(metricDate),
+      reportPeriod,
       rawDownloads: rawDownloads.total,
       uniqueIPs: uniqueIPs.total,
     });
@@ -56,12 +61,14 @@ export async function collectSonatypeMetrics(metricDate: string) {
 async function postSonatypeMavenMetrics(metric: {
   artifact: string;
   metricDate: Date;
+  reportPeriod: string;
   rawDownloads: number;
   uniqueIPs: number;
 }) {
   console.info("posting sonatype metric", { metric });
   const labels = {
     artifact: metric.artifact,
+    reportPeriod: metric.reportPeriod,
   };
 
   await postMetric(
@@ -195,11 +202,9 @@ async function getArtifactStats(
   groupId: string,
   artifactId: string,
   type: string,
-  fromDate?: string
+  reportPeriod?: string
 ): Promise<{ total: number }> {
-  const from = fromDate
-    ? convertDateToLastYearMonth(fromDate)
-    : getLastMonthDate();
+  const from = reportPeriod ?? getLastMonthDate();
   console.info(
     `Fetching ${type} stats for artifact ${artifactId} from ${from}...`
   );
@@ -275,12 +280,8 @@ function getLastMonthDate() {
   return `${lastMonthYear}${String(lastMonth).padStart(2, "0")}`;
 }
 
-// function to convert YYYY-MM-DD to YYYYMM
-function convertDateToLastYearMonth(date: string) {
-  console.info(`Converting date ${date} to last year month`);
-  const lastMonth = new Date(date);
-  // reduce 1 month, JS will automatically adjust the year if needed
-  lastMonth.setMonth(lastMonth.getMonth() - 1);
-  const [year, month] = lastMonth.toISOString().split("T")[0].split("-");
-  return `${year}${month}`;
+function getLastMonthPeriod(date: string): string {
+  const parsedDate = parse(date, "yyyy-MM-dd", new Date());
+  const previousMonth = subMonths(parsedDate, 1);
+  return format(previousMonth, "yyyy-MM");
 }

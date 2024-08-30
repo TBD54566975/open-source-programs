@@ -18,6 +18,7 @@
     "@octokit/types": "^13.5.0",
     "@types/node": "^20.12.12",
     "csv-writer": "^1.6.0",
+    "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "faker": "^6.6.6",

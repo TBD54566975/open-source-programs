@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import * as path from "path";
+import { subDays, format } from "date-fns";
 
 // Read JSON data from the file
 export function readJsonFile(filePath: string): any {
@@ -16,9 +16,8 @@ export function writeJsonFile(filePath: string, data: any): void {
 }
 
 export const getYesterdayDate = () => {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split("T")[0];
+  const yesterday = subDays(new Date(), 1);
+  return format(yesterday, "yyyy-MM-dd");
 };
 
 interface FetchWithRetryOptions {
@@ -32,7 +31,7 @@ export async function fetchWithRetry(
   options: RequestInit & FetchWithRetryOptions = {}
 ): Promise<Response> {
   const {
-    maxRetries = 3,
+    maxRetries = 9,
     retryDelay = 1000,
     timeout = 10000,
     ...fetchOptions

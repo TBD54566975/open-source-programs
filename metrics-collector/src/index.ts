@@ -136,12 +136,6 @@ async function initialLoad(
     `Initial load from ${initialLoadFromDate} to ${initialLoadToDate} with date ${date}`
   );
 
-  // if (monthlyInterval) {
-  //   // Change the date to the first day of the month
-  //   date.setDate(0);
-  // }
-  // console.info(`Date after setting to first day of the month: ${date}`);
-
   while (date <= initialLoadToDate) {
     const dateStr = date.toISOString().split("T")[0];
     console.log(`\n\n>>> Collecting metric ${metricName} for date: ${dateStr}`);
