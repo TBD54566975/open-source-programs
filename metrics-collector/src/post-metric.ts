@@ -6,25 +6,15 @@ interface Labels {
   [key: string]: string;
 }
 
-interface MetricPayload {
+export interface MetricPayload {
   metricName: string;
   value: number;
   labels: Labels;
   timestamp?: string;
 }
 
-export const postMetric = async (
-  metricName: string,
-  value: number,
-  labels: Labels,
-  timestamp?: Date
-): Promise<void> => {
-  const payload: MetricPayload = {
-    metricName,
-    value: value,
-    labels: labels,
-    timestamp: (timestamp || new Date()).toISOString(),
-  };
+export const postMetric = async (payload: MetricPayload): Promise<void> => {
+  payload.timestamp = payload.timestamp ?? new Date().toISOString();
 
   const response = await fetchWithRetry(`${metricsServiceAppUrl}/metrics`, {
     method: "POST",

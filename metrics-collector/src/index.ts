@@ -4,7 +4,7 @@ dotenv.config();
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { collectGhMetrics } from "./gh-metrics";
+import { saveGhMetrics } from "./gh-metrics";
 import { collectNpmMetrics } from "./npm-metrics";
 import {
   collectSonatypeMetrics,
@@ -105,15 +105,12 @@ async function main() {
   const collectGh = argv["collect-gh"];
   if (collectGh) {
     console.info(`\n\n============\n\n>>> Collecting metrics for GitHub...`);
-    await collectGhMetrics();
+    await saveGhMetrics();
   }
 
   const localCollection = !collectGh && !collectNpm && !collectSonatype;
   if (localCollection) {
     console.info(`\n\n============\n\n>>> Collecting local metrics...`);
-    // await saveNpmMetrics();
-    // await saveSonatypeMetrics();
-    await collectGhMetrics(true);
     // await saveNpmMetrics();
     await saveSonatypeMetrics();
     // await collectGhMetrics(true);

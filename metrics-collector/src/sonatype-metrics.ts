@@ -71,19 +71,19 @@ async function postSonatypeMavenMetrics(metric: {
     reportPeriod: metric.reportPeriod,
   };
 
-  await postMetric(
-    "sonatype_central_stats_downloads_last_month",
-    metric.rawDownloads,
+  await postMetric({
+    metricName: "sonatype_central_stats_downloads_last_month",
+    value: metric.rawDownloads,
     labels,
-    metric.metricDate
-  );
+    timestamp: metric.metricDate.toISOString(),
+  });
 
-  await postMetric(
-    "sonatype_central_stats_unique_ips_downloads_last_month",
-    metric.uniqueIPs,
+  await postMetric({
+    metricName: "sonatype_central_stats_unique_ips_downloads_last_month",
+    value: metric.uniqueIPs,
     labels,
-    metric.metricDate
-  );
+    timestamp: metric.metricDate.toISOString(),
+  });
 }
 
 export async function saveSonatypeMetrics() {

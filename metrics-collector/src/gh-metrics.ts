@@ -4,6 +4,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
 import { readJsonFile, writeJsonFile } from "./utils";
+import { isSameDay } from "date-fns";
+import { MetricPayload, postMetric } from "./post-metric";
 
 const orgName = "TBD54566975";
 const repos = [
@@ -23,20 +25,256 @@ const repos = [
 
 const KNOWN_PAST_MEMBERS = ["amika-sq"];
 
+const KNOWN_BOTS = ["codecov-commenter", "dependabot[bot]", "renovate[bot]"];
+
 const dataFilePath = path.join(process.cwd(), "pr_metrics.json");
 const csvDataFilePath = path.join(process.cwd(), "pr_metrics.csv");
 
 type ListPullsResponse =
   Endpoints["GET /repos/{owner}/{repo}/pulls"]["response"];
 
-let octokit: any;
+type PullRequestData = ListPullsResponse["data"][0];
+
+type IssueData =
+  Endpoints["GET /repos/{owner}/{repo}/issues"]["response"]["data"][0];
+
+type CommentData =
+  Endpoints["GET /repos/{owner}/{repo}/issues/comments"]["response"]["data"][0];
+
+interface GHMetrics {
+  orgName: string;
+  repoName: string;
+  metricDate: Date;
+  prs: PullRequestData[];
+  issues: IssueData[];
+  comments: CommentData[];
+  clones: number;
+  uniques: number;
+}
+
+let octokit: Octokit;
 
 // Cache members to avoid rate limiting
 const membersCache: Map<string, boolean> = new Map(
   KNOWN_PAST_MEMBERS.map((kpm) => [kpm, true])
 );
 
-export async function collectGhMetrics(isLocalPersistence: boolean = false) {
+export const collectGhMetrics = async (metricDate: Date) => {
+  for (const repoName of repos) {
+    const prs = await fetchPullRequests(orgName, repoName, metricDate);
+    const issues = await fetchIssues(orgName, repoName, metricDate);
+    const comments = await fetchComments(orgName, repoName, metricDate);
+    const { count: clones, uniques } = await getGitHubCloneMetrics(
+      orgName,
+      repoName,
+      metricDate
+    );
+    console.info(
+      `[${orgName}/${repoName}]: fetched ${issues.length} issues, ${prs.length} PRs, and ${comments.length} comments; clones: ${clones}, uniques: ${uniques}`
+    );
+    await postGhMetrics({
+      orgName,
+      repoName,
+      metricDate,
+      prs,
+      issues,
+      comments,
+      clones,
+      uniques,
+    });
+  }
+};
+
+async function fetchPullRequests(
+  owner: string,
+  repo: string,
+  metricDate: Date
+): Promise<PullRequestData[]> {
+  const prs = [];
+  const pageSize = 100;
+  let page = 1;
+  while (true) {
+    const { data } = await octokit.pulls.list({
+      owner,
+      repo,
+      state: "all",
+      per_page: pageSize,
+      sort: "created",
+      direction: "desc",
+      page,
+    });
+    const filteredPrs = data.filter((pr) => {
+      const prDate = new Date(pr.created_at);
+      return isSameDay(prDate, metricDate);
+    });
+    prs.push(...filteredPrs);
+    if (filteredPrs.length < pageSize) break;
+    page++;
+  }
+  return prs;
+}
+
+async function fetchIssues(
+  owner: string,
+  repo: string,
+  metricDate: Date
+): Promise<IssueData[]> {
+  const issues = [];
+  const pageSize = 100;
+  let page = 1;
+  while (true) {
+    const { data } = await octokit.issues.listForRepo({
+      owner,
+      repo,
+      state: "all",
+      per_page: pageSize,
+      sort: "created",
+      direction: "desc",
+      page,
+    });
+    const filteredIssues = data.filter((item) => {
+      const issueDate = new Date(item.created_at);
+      return isSameDay(issueDate, metricDate);
+    });
+    issues.push(...filteredIssues);
+    if (filteredIssues.length < pageSize) break;
+    page++;
+  }
+  return issues;
+}
+
+async function fetchComments(
+  owner: string,
+  repo: string,
+  metricDate: Date
+): Promise<CommentData[]> {
+  const comments = [];
+  const pageSize = 100;
+  let page = 1;
+  while (true) {
+    const { data } = await octokit.issues.listCommentsForRepo({
+      owner,
+      repo,
+      per_page: pageSize,
+      sort: "created",
+      direction: "desc",
+      page,
+    });
+    const filteredComments = data.filter((item) => {
+      const commentDate = new Date(item.created_at);
+      return isSameDay(commentDate, metricDate);
+    });
+    comments.push(...filteredComments);
+    if (filteredComments.length < pageSize) break;
+    page++;
+  }
+  return comments;
+}
+
+const postGhMetrics = async (metrics: GHMetrics) => {
+  const ghMetrics: MetricPayload[] = [];
+
+  const labels = {
+    orgName: metrics.orgName,
+    repoName: metrics.repoName,
+  };
+  const timestamp = metrics.metricDate.toISOString();
+
+  // issues metrics
+  const { internalIssues, externalIssues, botIssues } = await getIssueMetrics(
+    metrics.issues
+  );
+  // internal issues metrics
+  ghMetrics.push(
+    ...internalIssues.map((issue) =>
+      ghAuthoredMetric(
+        "gh_issues",
+        { ...labels, source_type: "internal" },
+        issue.created_at,
+        issue.user?.login
+      )
+    )
+  );
+  // external issues metrics
+  ghMetrics.push(
+    ...externalIssues.map((issue) =>
+      ghAuthoredMetric(
+        "gh_issues",
+        { ...labels, source_type: "external" },
+        issue.created_at,
+        issue.user?.login
+      )
+    )
+  );
+  // bot issues metrics
+  ghMetrics.push(
+    ...internalIssues.map((issue) =>
+      ghAuthoredMetric(
+        "gh_issues",
+        { ...labels, source_type: "bot" },
+        issue.created_at,
+        issue.user?.login
+      )
+    )
+  );
+
+  // clones metrics
+  ghMetrics.push({
+    metricName: "gh_clones",
+    value: metrics.clones,
+    labels,
+    timestamp,
+  });
+
+  // unique clones metrics
+  ghMetrics.push({
+    metricName: "gh_clones_unique",
+    value: metrics.uniques,
+    labels,
+    timestamp,
+  });
+
+  console.info("Posting GH metrics >>> ", ghMetrics);
+  await Promise.all(ghMetrics.map(postMetric));
+  console.info("GH metrics posted successfully");
+};
+
+const ghAuthoredMetric = (
+  metricName: string,
+  labels: any,
+  timestamp: string,
+  user = "unknown"
+) => ({
+  metricName: "gh_issues_internal",
+  value: 1,
+  labels: {
+    ...labels,
+    user,
+  },
+  timestamp,
+});
+
+async function getIssueMetrics(issues: IssueData[]) {
+  const internalIssues = [];
+  const externalIssues = [];
+  const botIssues = [];
+  for (const issue of issues) {
+    if (!issue.user) {
+      console.error("Issue user not found!", issue);
+      throw new Error("Issue user not found!");
+    }
+    if (issue.user.type === "Bot") {
+      botIssues.push(issue);
+    } else if (await isMember(orgName, issue.user.login)) {
+      internalIssues.push(issue);
+    } else {
+      externalIssues.push(issue);
+    }
+  }
+  return { internalIssues, externalIssues, botIssues };
+}
+
+export async function saveGhMetrics(isLocalPersistence: boolean = false) {
   if (!process.env.GITHUB_TOKEN) {
     throw new Error("GITHUB_TOKEN is not set!");
   }
@@ -163,21 +401,40 @@ async function getGitHubRepoMetrics(org: string, repo: string) {
   }
 }
 
-async function getGitHubCloneMetrics(org: string, repo: string) {
+async function getGitHubCloneMetrics(
+  org: string,
+  repo: string,
+  metricDate?: Date
+) {
   try {
     const { data } = await octokit.repos.getClones({
       owner: org,
       repo,
       per: "day",
     });
-    console.info("Clones data >>>> ", data);
-    return data;
+    if (metricDate) {
+      const metricDateCloneData = data.clones.find((clone) =>
+        isSameDay(new Date(clone.timestamp), metricDate)
+      );
+      if (metricDateCloneData) {
+        return metricDateCloneData;
+      } else {
+        throw new Error("No clone metrics found for the given date");
+      }
+    } else {
+      console.info("Clones data >>>> ", data);
+      return data;
+    }
   } catch (error) {
     console.error(
       `Error fetching clone metrics for repository ${org}/${repo}:`,
       error
     );
-    return 0;
+    return {
+      count: 0,
+      uniques: 0,
+      clones: [],
+    };
   }
 }
 

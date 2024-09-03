@@ -104,20 +104,20 @@ async function postNpmMetrics(metric: {
 
   // Push daily downloads if present
   if (metric.dailyDownloads !== undefined) {
-    await postMetric(
-      "npm_downloads",
-      metric.dailyDownloads,
+    await postMetric({
+      metricName: "npm_downloads",
+      value: metric.dailyDownloads,
       labels,
-      metric.metricDate
-    );
+      timestamp: metric.metricDate.toISOString(),
+    });
   }
 
-  await postMetric(
-    "npm_total_downloads",
-    metric.totalDownloads,
+  await postMetric({
+    metricName: "npm_total_downloads",
+    value: metric.totalDownloads,
     labels,
-    metric.metricDate
-  );
+    timestamp: metric.metricDate.toISOString(),
+  });
 }
 
 async function getNpmDownloadCount(
