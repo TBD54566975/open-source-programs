@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
-import { parse, format, subMonths } from "date-fns";
+import { parse, format, subMonths, addHours } from "date-fns";
 import { fetchWithRetry, readJsonFile, writeJsonFile } from "./utils";
 import { postMetric } from "./post-metric";
 
@@ -18,6 +18,9 @@ const sonatypeCentralStatsUrl =
   "https://s01.oss.sonatype.org/service/local/stats";
 
 export async function collectSonatypeMetrics(metricDate: Date) {
+  const reportPeriod = getLastMonthPeriod(metricDate);
+  const reportPeriodWithoutHyphen = reportPeriod.replace("-", "");
+  console.info({ reportPeriod, reportPeriodWithoutHyphen });
   initAuth();
 
   const projectId = await getProjectId(groupId);
@@ -27,9 +30,6 @@ export async function collectSonatypeMetrics(metricDate: Date) {
     if (!["tbdex", "web5"].find((a) => artifact.includes(a))) {
       continue; // TODO: add parameterized filter
     }
-
-    const reportPeriod = getLastMonthPeriod(metricDate);
-    const reportPeriodWithoutHyphen = reportPeriod.replace("-", "");
 
     const rawDownloads = await getArtifactStats(
       projectId,
@@ -281,7 +281,8 @@ function getLastMonthDate() {
 }
 
 function getLastMonthPeriod(date: Date): string {
-  const parsedDate = parse(date.toISOString(), "yyyy-MM-dd", new Date());
-  const previousMonth = subMonths(parsedDate, 1);
+  const midDayDate = addHours(date, 12); // avoid timezone issues
+  const previousMonth = subMonths(midDayDate, 1);
+  console.info({ date, midDayDate, previousMonth });
   return format(previousMonth, "yyyy-MM");
 }
