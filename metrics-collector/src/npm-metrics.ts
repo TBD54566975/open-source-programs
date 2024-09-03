@@ -26,19 +26,20 @@ const dataFilePath = path.join(process.cwd(), "npm_metrics.json");
 const csvFilePath = path.join(process.cwd(), "npm_metrics.csv");
 
 // Push collected metrics to the metrics service
-export const collectNpmMetrics = async (metricDate: string) => {
+export const collectNpmMetrics = async (metricDate: Date) => {
+  const metricDateStr = metricDate.toISOString().split("T")[0];
   for (const pkg of npmPackages) {
     const { downloads: totalDownloads } = await getNpmDownloadCount(
       pkg,
       false,
-      { begin: "1970-01-01", end: metricDate }
+      { begin: "1970-01-01", end: metricDateStr }
     );
 
     // Collect daily downloads too
     const { downloads: dailyDownloads } = await getNpmDownloadCount(
       pkg,
       false,
-      { begin: metricDate, end: metricDate }
+      { begin: metricDateStr, end: metricDateStr }
     );
 
     console.info(`\n\n============\n\n>>> Collected metrics for ${pkg}...`);

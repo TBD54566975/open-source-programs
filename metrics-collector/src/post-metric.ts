@@ -15,6 +15,7 @@ export interface MetricPayload {
 
 export const postMetric = async (payload: MetricPayload): Promise<void> => {
   payload.timestamp = payload.timestamp ?? new Date().toISOString();
+  console.info({ payload });
 
   const response = await fetchWithRetry(`${metricsServiceAppUrl}/metrics`, {
     method: "POST",

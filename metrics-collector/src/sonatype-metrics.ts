@@ -17,7 +17,7 @@ const requestHeaders: Record<string, string> = {
 const sonatypeCentralStatsUrl =
   "https://s01.oss.sonatype.org/service/local/stats";
 
-export async function collectSonatypeMetrics(metricDate: string) {
+export async function collectSonatypeMetrics(metricDate: Date) {
   initAuth();
 
   const projectId = await getProjectId(groupId);
@@ -48,7 +48,7 @@ export async function collectSonatypeMetrics(metricDate: string) {
 
     await postSonatypeMavenMetrics({
       artifact,
-      metricDate: new Date(metricDate),
+      metricDate,
       reportPeriod,
       rawDownloads: rawDownloads.total,
       uniqueIPs: uniqueIPs.total,
@@ -280,8 +280,8 @@ function getLastMonthDate() {
   return `${lastMonthYear}${String(lastMonth).padStart(2, "0")}`;
 }
 
-function getLastMonthPeriod(date: string): string {
-  const parsedDate = parse(date, "yyyy-MM-dd", new Date());
+function getLastMonthPeriod(date: Date): string {
+  const parsedDate = parse(date.toISOString(), "yyyy-MM-dd", new Date());
   const previousMonth = subMonths(parsedDate, 1);
   return format(previousMonth, "yyyy-MM");
 }

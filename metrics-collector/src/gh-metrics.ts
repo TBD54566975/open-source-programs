@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
 import { readJsonFile, writeJsonFile } from "./utils";
-import { isSameDay } from "date-fns";
+import { isSameDay } from "date-fns";``
 import { MetricPayload, postMetric } from "./post-metric";
 
 const orgName = "TBD54566975";
@@ -181,43 +181,66 @@ const postGhMetrics = async (metrics: GHMetrics) => {
   const timestamp = metrics.metricDate.toISOString();
 
   // issues metrics
-  const { internalIssues, externalIssues, botIssues } = await getIssueMetrics(
+  const issues = await itemByUserType(
     metrics.issues
   );
-  // internal issues metrics
-  ghMetrics.push(
-    ...internalIssues.map((issue) =>
-      ghAuthoredMetric(
-        "gh_issues",
-        { ...labels, source_type: "internal" },
-        issue.created_at,
-        issue.user?.login
-      )
-    )
-  );
-  // external issues metrics
-  ghMetrics.push(
-    ...externalIssues.map((issue) =>
-      ghAuthoredMetric(
-        "gh_issues",
-        { ...labels, source_type: "external" },
-        issue.created_at,
-        issue.user?.login
-      )
-    )
-  );
-  // bot issues metrics
-  ghMetrics.push(
-    ...internalIssues.map((issue) =>
-      ghAuthoredMetric(
-        "gh_issues",
-        { ...labels, source_type: "bot" },
-        issue.created_at,
-        issue.user?.login
-      )
-    )
-  );
+  const issueTypes = [
+    { issues: issues.internal, userType: "internal" },
+    { issues: issues.external, userType: "external" },
+    { issues: issues.bot, userType: "bot" }
+  ];
+  issueTypes.forEach(({ issues, userType }) => {
+    ghMetrics.push(
+      ...issues.map((issue) => ({
+        metricName: "gh_issues",
+        value: 1,
+        labels: { ...labels, userType },
+        timestamp: issue.created_at,
+        user: issue.user?.login,
+      }))
+    );
+  });
 
+  // comments metrics
+  const comments = await itemByUserType(
+    metrics.comments
+  );
+  const commentTypes = [
+    { comments: comments.internal, userType: "internal" },
+    { comments: comments.external, userType: "external" },
+    { comments: comments.bot, userType: "bot" }
+  ];
+  commentTypes.forEach(({ comments, userType }) => {
+    ghMetrics.push(
+      ...comments.map((comment) => ({
+        metricName: "gh_comments",
+        value: 1,
+        labels: { ...labels, userType },
+        timestamp: comment.created_at,
+        user: comment.user?.login,
+      }))
+    );
+  });
+
+  // prs metrics
+  const prs = await itemByUserType(metrics.prs);
+  const prTypes = [
+    { prs: prs.internal, userType: "internal" },
+    { prs: prs.external, userType: "external" },
+    { prs: prs.bot, userType: "bot" }
+  ];
+  prTypes.forEach(({ prs, userType }) => {
+    ghMetrics.push(
+      ...prs.map((pr) => ({
+        metricName: "gh_prs",
+        value: 1,
+        labels: { ...labels, userType },
+        timestamp: pr.created_at,
+        user: pr.user?.login,
+      }))
+    );
+  });
+  
   // clones metrics
   ghMetrics.push({
     metricName: "gh_clones",
@@ -239,39 +262,24 @@ const postGhMetrics = async (metrics: GHMetrics) => {
   console.info("GH metrics posted successfully");
 };
 
-const ghAuthoredMetric = (
-  metricName: string,
-  labels: any,
-  timestamp: string,
-  user = "unknown"
-) => ({
-  metricName: "gh_issues_internal",
-  value: 1,
-  labels: {
-    ...labels,
-    user,
-  },
-  timestamp,
-});
-
-async function getIssueMetrics(issues: IssueData[]) {
-  const internalIssues = [];
-  const externalIssues = [];
-  const botIssues = [];
-  for (const issue of issues) {
-    if (!issue.user) {
-      console.error("Issue user not found!", issue);
+async function itemByUserType(items: CommentData[] | IssueData[] | PullRequestData[]) {
+  const internal = [];
+  const external = [];
+  const bot = [];
+  for (const item of items) {
+    if (!item.user) {
+      console.error("Comment user not found!", item);
       throw new Error("Issue user not found!");
     }
-    if (issue.user.type === "Bot") {
-      botIssues.push(issue);
-    } else if (await isMember(orgName, issue.user.login)) {
-      internalIssues.push(issue);
+    if (item.user.type === "Bot") {
+      bot.push(item);
+    } else if (await isMember(orgName, item.user.login)) {
+      internal.push(item);
     } else {
-      externalIssues.push(issue);
+      external.push(item);
     }
   }
-  return { internalIssues, externalIssues, botIssues };
+  return { internal, external, bot };
 }
 
 export async function saveGhMetrics(isLocalPersistence: boolean = false) {

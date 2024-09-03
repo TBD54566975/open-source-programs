@@ -4,7 +4,7 @@ dotenv.config();
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { saveGhMetrics } from "./gh-metrics";
+import { collectGhMetrics, saveGhMetrics } from "./gh-metrics";
 import { collectNpmMetrics } from "./npm-metrics";
 import {
   collectSonatypeMetrics,
@@ -13,6 +13,7 @@ import {
 import { getYesterdayDate, readJsonFile } from "./utils";
 import { readFile, writeFile } from "fs/promises";
 import { existsSync, mkdirSync } from "fs";
+import { addDays, addMonths } from "date-fns";
 
 const isLocalPersistence = process.env.PERSIST_LOCAL_FILES === "true";
 
@@ -80,7 +81,7 @@ async function main() {
         collectNpmMetrics
       );
     } else {
-      await collectNpmMetrics(metricDateStr);
+      await collectNpmMetrics(metricDate);
     }
   }
 
@@ -98,14 +99,23 @@ async function main() {
         true
       );
     } else {
-      await collectSonatypeMetrics(metricDateStr);
+      await collectSonatypeMetrics(metricDate);
     }
   }
 
   const collectGh = argv["collect-gh"];
   if (collectGh) {
     console.info(`\n\n============\n\n>>> Collecting metrics for GitHub...`);
-    await saveGhMetrics();
+    if (initialLoadFromDate) {
+      await initialLoad(
+        "gh-metrics",
+        initialLoadFromDate,
+        metricDate,
+        collectGhMetrics
+      );
+    } else {
+      await collectGhMetrics(metricDate);
+    }
   }
 
   const localCollection = !collectGh && !collectNpm && !collectSonatype;
@@ -121,13 +131,13 @@ async function initialLoad(
   metricName: string,
   initialLoadFromDate: Date,
   initialLoadToDate: Date,
-  collectMetrics: (metricDate: string) => Promise<void>,
+  collectMetrics: (metricDate: Date) => Promise<void>,
   monthlyInterval = false,
   skipLastSavedState = false
 ) {
   const lastSavedState =
     !skipLastSavedState && (await getLastSavedState(metricName));
-  const date = lastSavedState || initialLoadFromDate;
+  let date = lastSavedState || initialLoadFromDate;
 
   console.info(
     `Initial load from ${initialLoadFromDate} to ${initialLoadToDate} with date ${date}`
@@ -136,13 +146,8 @@ async function initialLoad(
   while (date <= initialLoadToDate) {
     const dateStr = date.toISOString().split("T")[0];
     console.log(`\n\n>>> Collecting metric ${metricName} for date: ${dateStr}`);
-    await collectMetrics(dateStr);
-    if (monthlyInterval) {
-      // Move to the next month (JS will handle year change automatically)
-      date.setMonth(date.getMonth() + 1);
-    } else {
-      date.setDate(date.getDate() + 1);
-    }
+    await collectMetrics(date);
+    date = monthlyInterval ? addMonths(date, 1) : addDays(date, 1);
     await saveLastSavedState(metricName, date);
   }
 }
