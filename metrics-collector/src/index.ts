@@ -13,7 +13,7 @@ import {
 import { getYesterdayDate, readJsonFile } from "./utils";
 import { readFile, writeFile } from "fs/promises";
 import { existsSync, mkdirSync } from "fs";
-import { addDays, addMonths } from "date-fns";
+import { addDays, addMonths, startOfDay } from "date-fns";
 
 const isLocalPersistence = process.env.PERSIST_LOCAL_FILES === "true";
 
@@ -28,6 +28,8 @@ interface Arguments {
   "collect-npm": boolean;
   "collect-sonatype": boolean;
   "initial-load-from": string;
+  "initial-load-to": string;
+  "initial-load-state": string;
 }
 
 const argv = yargs(hideBin(process.argv)).options({
@@ -52,23 +54,52 @@ const argv = yargs(hideBin(process.argv)).options({
       "Execute initial load of metrics for all selected sources from this date in format YYYY-MM-DD",
     default: "",
   },
+  "initial-load-to": {
+    type: "string",
+    description:
+      "Execute initial load of metrics for all selected sources up until this date in format YYYY-MM-DD",
+    default: "",
+  },
+  "initial-load-state": {
+    type: "string",
+    description:
+      "Set the name of the file that contains the last saved state of the metrics collection",
+    default: "",
+  },
 }).argv as Arguments;
 
 async function main() {
   const initialLoadFrom = argv["initial-load-from"];
   // validate the date format is YYYY-MM-DD
   if (initialLoadFrom && !/^\d{4}-\d{2}-\d{2}$/.test(initialLoadFrom)) {
-    throw new Error("Invalid date format. Please use YYYY-MM-DD");
+    throw new Error(
+      "Invalid initial-load-from date format. Please use YYYY-MM-DD"
+    );
+  }
+  const initialLoadTo = argv["initial-load-to"];
+  // validate the date format is YYYY-MM-DD
+  if (initialLoadTo && !/^\d{4}-\d{2}-\d{2}$/.test(initialLoadTo)) {
+    throw new Error(
+      "Invalid initial-load-to date format. Please use YYYY-MM-DD"
+    );
   }
 
   // by default the metric date is yesterday, because stats services
   // usually provide data for everything until the previous day
   const metricDateStr = getYesterdayDate();
 
-  const metricDate = new Date(metricDateStr);
+  const metricDate = new Date(
+    `${initialLoadTo ?? metricDateStr}T12:00:00.000Z`
+  );
+
   const initialLoadFromDate = initialLoadFrom
-    ? new Date(`${initialLoadFrom}T00:00:00.000Z`)
+    ? new Date(`${initialLoadFrom}T12:00:00.000Z`)
     : undefined;
+  const initialLoadToDate = initialLoadTo
+    ? new Date(`${initialLoadTo}T12:00:00.000Z`)
+    : undefined;
+
+  const initialLoadState = argv["initial-load-state"];
 
   const collectNpm = argv["collect-npm"];
   if (collectNpm) {
@@ -78,7 +109,8 @@ async function main() {
         "npm-metrics",
         initialLoadFromDate,
         metricDate,
-        collectNpmMetrics
+        collectNpmMetrics,
+        initialLoadState
       );
     } else {
       await collectNpmMetrics(metricDate);
@@ -96,6 +128,7 @@ async function main() {
         initialLoadFromDate,
         metricDate,
         collectSonatypeMetrics,
+        initialLoadState,
         true
       );
     } else {
@@ -111,7 +144,8 @@ async function main() {
         "gh-metrics",
         initialLoadFromDate,
         metricDate,
-        collectGhMetrics
+        collectGhMetrics,
+        initialLoadState
       );
     } else {
       await collectGhMetrics(metricDate);
@@ -132,11 +166,10 @@ async function initialLoad(
   initialLoadFromDate: Date,
   initialLoadToDate: Date,
   collectMetrics: (metricDate: Date) => Promise<void>,
-  monthlyInterval = false,
-  skipLastSavedState = false
+  initialLoadState: string,
+  monthlyInterval = false
 ) {
-  const lastSavedState =
-    !skipLastSavedState && (await getLastSavedState(metricName));
+  const lastSavedState = await getLastSavedState(metricName, initialLoadState);
   let date = lastSavedState || initialLoadFromDate;
 
   console.info(
@@ -145,15 +178,22 @@ async function initialLoad(
 
   while (date <= initialLoadToDate) {
     const dateStr = date.toISOString().split("T")[0];
+    const startOfDayDate = new Date(`${dateStr}T00:00:00.000Z`);
     console.log(`\n\n>>> Collecting metric ${metricName} for date: ${dateStr}`);
-    await collectMetrics(date);
+    await collectMetrics(startOfDayDate);
     date = monthlyInterval ? addMonths(date, 1) : addDays(date, 1);
-    await saveLastSavedState(metricName, date);
+    console.log(
+      `Saving last saved state for ${metricName} to ${date.toISOString()}`
+    );
+    await saveLastSavedState(metricName, initialLoadState, date);
   }
 }
 
-export const getLastSavedState = async (metricName: string) => {
-  const filePath = `./data/last-saved-state-${metricName}`;
+export const getLastSavedState = async (
+  metricName: string,
+  initialLoadState: string
+) => {
+  const filePath = `./data/last-saved-state-${initialLoadState}-${metricName}`;
   if (!existsSync(filePath)) {
     return undefined;
   }
@@ -161,12 +201,16 @@ export const getLastSavedState = async (metricName: string) => {
   return new Date(lastSavedState.toString("utf8"));
 };
 
-export const saveLastSavedState = (metricName: string, date: Date) => {
+export const saveLastSavedState = (
+  metricName: string,
+  initialLoadState: string,
+  date: Date
+) => {
   const dataDir = "./data";
   if (!existsSync(dataDir)) {
     mkdirSync(dataDir, { recursive: true });
   }
-  const filePath = `${dataDir}/last-saved-state-${metricName}`;
+  const filePath = `${dataDir}/last-saved-state-${initialLoadState}-${metricName}`;
   return writeFile(filePath, date.toISOString());
 };
 

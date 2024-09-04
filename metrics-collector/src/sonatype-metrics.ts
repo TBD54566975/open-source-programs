@@ -27,7 +27,7 @@ export async function collectSonatypeMetrics(metricDate: Date) {
   const artifacts = await getArtifacts(projectId, groupId);
 
   for (const artifact of artifacts) {
-    if (!["tbdex", "web5"].find((a) => artifact.includes(a))) {
+    if (!["tbdex", "web5"].find((a) => artifact === a)) {
       continue; // TODO: add parameterized filter
     }
 
