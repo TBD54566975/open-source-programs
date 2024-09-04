@@ -1,5 +1,6 @@
 import * as fs from "fs";
-import { subDays, format } from "date-fns";
+import { subDays, format, sub } from "date-fns";
+import type { Duration } from "date-fns";
 
 // Read JSON data from the file
 export function readJsonFile(filePath: string): any {
@@ -72,4 +73,52 @@ export async function fetchWithRetry(
     }
   }
   throw new Error("Max retries reached");
+}
+
+export function getRelativeDate(durationStr: string): Date {
+  const duration = createDuration(durationStr);
+  return sub(new Date(), duration);
+}
+
+export function createDuration(input: string): Duration {
+  const regex = /^-?(\d+)(y|mo|w|d|h|min|s)$/;
+  const match = input.match(regex);
+
+  if (!match) {
+    throw new Error(
+      "Invalid duration format. Use formats like 7d, -1mo, 5y, 2w, 3h, 30min, 45s"
+    );
+  }
+
+  const [, amount, unit] = match;
+  const value = parseInt(amount, 10);
+  const duration: Duration = {};
+
+  switch (unit) {
+    case "y":
+      duration.years = value;
+      break;
+    case "mo":
+      duration.months = value;
+      break;
+    case "w":
+      duration.weeks = value;
+      break;
+    case "d":
+      duration.days = value;
+      break;
+    case "h":
+      duration.hours = value;
+      break;
+    case "min":
+      duration.minutes = value;
+      break;
+    case "s":
+      duration.seconds = value;
+      break;
+    default:
+      throw new Error("Invalid duration unit");
+  }
+
+  return duration;
 }

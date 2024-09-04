@@ -46,7 +46,7 @@ export const collectNpmMetrics = async (metricDate: Date) => {
 
     await postNpmMetrics({
       pkg,
-      metricDate: new Date(metricDate),
+      metricDate: new Date(`${metricDateStr}T00:00:00.000Z`),
       totalDownloads: totalDownloads,
       dailyDownloads: dailyDownloads,
     });

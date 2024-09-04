@@ -10,7 +10,7 @@ import {
   collectSonatypeMetrics,
   saveSonatypeMetrics,
 } from "./sonatype-metrics";
-import { getYesterdayDate, readJsonFile } from "./utils";
+import { getRelativeDate, getYesterdayDate, readJsonFile } from "./utils";
 import { readFile, writeFile } from "fs/promises";
 import { existsSync, mkdirSync } from "fs";
 import { addDays, addMonths, startOfDay } from "date-fns";
@@ -27,6 +27,7 @@ interface Arguments {
   "collect-gh": boolean;
   "collect-npm": boolean;
   "collect-sonatype": boolean;
+  "relative-date": string;
   "initial-load-from": string;
   "initial-load-to": string;
   "initial-load-state": string;
@@ -47,6 +48,12 @@ const argv = yargs(hideBin(process.argv)).options({
     type: "boolean",
     description: "Collect Sonatype metrics",
     default: false,
+  },
+  "relative-date": {
+    type: "string",
+    description:
+      "Collect metrics from this relative date (e.g., 7d, 1mo, 2w). Accept durations: y, mo, w, d, h, min, s",
+    default: "1d",
   },
   "initial-load-from": {
     type: "string",
@@ -86,17 +93,15 @@ async function main() {
 
   // by default the metric date is yesterday, because stats services
   // usually provide data for everything until the previous day
-  const metricDateStr = getYesterdayDate();
+  const relativeDateArg = argv["relative-date"];
+  const relativeMetricDate = getRelativeDate(relativeDateArg);
 
-  const metricDate = new Date(
-    `${initialLoadTo ?? metricDateStr}T12:00:00.000Z`
-  );
+  const metricDate = initialLoadTo
+    ? new Date(`${initialLoadTo}T12:00:00.000Z`)
+    : relativeMetricDate;
 
   const initialLoadFromDate = initialLoadFrom
     ? new Date(`${initialLoadFrom}T12:00:00.000Z`)
-    : undefined;
-  const initialLoadToDate = initialLoadTo
-    ? new Date(`${initialLoadTo}T12:00:00.000Z`)
     : undefined;
 
   const initialLoadState = argv["initial-load-state"];
