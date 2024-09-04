@@ -4,7 +4,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
 import { readJsonFile, writeJsonFile } from "./utils";
-import { isSameDay } from "date-fns";``
+import { isSameDay } from "date-fns";
+``;
 import { MetricPayload, postMetric } from "./post-metric";
 
 const orgName = "TBD54566975";
@@ -60,6 +61,14 @@ const membersCache: Map<string, boolean> = new Map(
 );
 
 export const collectGhMetrics = async (metricDate: Date) => {
+  if (!process.env.GITHUB_TOKEN) {
+    throw new Error("GITHUB_TOKEN is not set!");
+  }
+
+  octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+  });
+
   for (const repoName of repos) {
     const prs = await fetchPullRequests(orgName, repoName, metricDate);
     const issues = await fetchIssues(orgName, repoName, metricDate);
@@ -174,78 +183,37 @@ async function fetchComments(
 const postGhMetrics = async (metrics: GHMetrics) => {
   const ghMetrics: MetricPayload[] = [];
 
-  const labels = {
-    orgName: metrics.orgName,
-    repoName: metrics.repoName,
-  };
+  const { orgName, repoName } = metrics;
   const timestamp = metrics.metricDate.toISOString();
 
-  // issues metrics
-  const issues = await itemByUserType(
+  const issuesMetrics = await metricByUserType(
+    orgName,
+    repoName,
+    "gh_issues",
     metrics.issues
   );
-  const issueTypes = [
-    { issues: issues.internal, userType: "internal" },
-    { issues: issues.external, userType: "external" },
-    { issues: issues.bot, userType: "bot" }
-  ];
-  issueTypes.forEach(({ issues, userType }) => {
-    ghMetrics.push(
-      ...issues.map((issue) => ({
-        metricName: "gh_issues",
-        value: 1,
-        labels: { ...labels, userType },
-        timestamp: issue.created_at,
-        user: issue.user?.login,
-      }))
-    );
-  });
 
-  // comments metrics
-  const comments = await itemByUserType(
+  const commentsMetrics = await metricByUserType(
+    orgName,
+    repoName,
+    "gh_comments",
     metrics.comments
   );
-  const commentTypes = [
-    { comments: comments.internal, userType: "internal" },
-    { comments: comments.external, userType: "external" },
-    { comments: comments.bot, userType: "bot" }
-  ];
-  commentTypes.forEach(({ comments, userType }) => {
-    ghMetrics.push(
-      ...comments.map((comment) => ({
-        metricName: "gh_comments",
-        value: 1,
-        labels: { ...labels, userType },
-        timestamp: comment.created_at,
-        user: comment.user?.login,
-      }))
-    );
-  });
 
-  // prs metrics
-  const prs = await itemByUserType(metrics.prs);
-  const prTypes = [
-    { prs: prs.internal, userType: "internal" },
-    { prs: prs.external, userType: "external" },
-    { prs: prs.bot, userType: "bot" }
-  ];
-  prTypes.forEach(({ prs, userType }) => {
-    ghMetrics.push(
-      ...prs.map((pr) => ({
-        metricName: "gh_prs",
-        value: 1,
-        labels: { ...labels, userType },
-        timestamp: pr.created_at,
-        user: pr.user?.login,
-      }))
-    );
-  });
-  
+  const prsMetrics = await metricByUserType(
+    orgName,
+    repoName,
+    "gh_prs",
+    metrics.prs
+  );
+
+  ghMetrics.push(...issuesMetrics, ...commentsMetrics, ...prsMetrics);
+
   // clones metrics
   ghMetrics.push({
     metricName: "gh_clones",
     value: metrics.clones,
-    labels,
+    labels: { orgName, repoName },
     timestamp,
   });
 
@@ -253,7 +221,7 @@ const postGhMetrics = async (metrics: GHMetrics) => {
   ghMetrics.push({
     metricName: "gh_clones_unique",
     value: metrics.uniques,
-    labels,
+    labels: { orgName, repoName },
     timestamp,
   });
 
@@ -262,24 +230,36 @@ const postGhMetrics = async (metrics: GHMetrics) => {
   console.info("GH metrics posted successfully");
 };
 
-async function itemByUserType(items: CommentData[] | IssueData[] | PullRequestData[]) {
-  const internal = [];
-  const external = [];
-  const bot = [];
+async function metricByUserType(
+  orgName: string,
+  repoName: string,
+  metricName: string,
+  items: CommentData[] | IssueData[] | PullRequestData[]
+): Promise<MetricPayload[]> {
+  const metrics: MetricPayload[] = [];
   for (const item of items) {
     if (!item.user) {
-      console.error("Comment user not found!", item);
-      throw new Error("Issue user not found!");
+      console.error("GH Item user not found!", item);
+      throw new Error("GH Item user not found!");
     }
+    let userType = "unknown";
     if (item.user.type === "Bot") {
-      bot.push(item);
+      userType = "bot";
     } else if (await isMember(orgName, item.user.login)) {
-      internal.push(item);
+      userType = "internal";
     } else {
-      external.push(item);
+      userType = "external";
     }
+    const user = item.user?.login;
+    const metric = {
+      metricName,
+      value: 1,
+      labels: { orgName, repoName, userType, ...(user ? { user } : {}) },
+      timestamp: item.created_at,
+    };
+    metrics.push(metric);
   }
-  return { internal, external, bot };
+  return metrics;
 }
 
 export async function saveGhMetrics(isLocalPersistence: boolean = false) {
