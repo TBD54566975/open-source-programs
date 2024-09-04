@@ -3,7 +3,7 @@ import { Endpoints } from "@octokit/types";
 import * as fs from "fs";
 import * as path from "path";
 import { createObjectCsvWriter } from "csv-writer";
-import { readJsonFile, writeJsonFile } from "./utils";
+import { readJsonFile, withRetry, writeJsonFile } from "./utils";
 import { isSameDay } from "date-fns";
 ``;
 import { MetricPayload, postMetric } from "./post-metric";
@@ -103,15 +103,17 @@ async function fetchPullRequests(
   const pageSize = 100;
   let page = 1;
   while (true) {
-    const { data } = await octokit.pulls.list({
-      owner,
-      repo,
-      state: "all",
-      per_page: pageSize,
-      sort: "created",
-      direction: "desc",
-      page,
-    });
+    const { data } = await withRetry(() =>
+      octokit.pulls.list({
+        owner,
+        repo,
+        state: "all",
+        per_page: pageSize,
+        sort: "created",
+        direction: "desc",
+        page,
+      })
+    );
     const filteredPrs = data.filter((pr) => {
       const prDate = new Date(pr.created_at);
       return isSameDay(prDate, metricDate);
@@ -132,15 +134,17 @@ async function fetchIssues(
   const pageSize = 100;
   let page = 1;
   while (true) {
-    const { data } = await octokit.issues.listForRepo({
-      owner,
-      repo,
-      state: "all",
-      per_page: pageSize,
-      sort: "created",
-      direction: "desc",
-      page,
-    });
+    const { data } = await withRetry(() =>
+      octokit.issues.listForRepo({
+        owner,
+        repo,
+        state: "all",
+        per_page: pageSize,
+        sort: "created",
+        direction: "desc",
+        page,
+      })
+    );
     const filteredIssues = data.filter((item) => {
       const issueDate = new Date(item.created_at);
       return isSameDay(issueDate, metricDate);
@@ -161,14 +165,16 @@ async function fetchComments(
   const pageSize = 100;
   let page = 1;
   while (true) {
-    const { data } = await octokit.issues.listCommentsForRepo({
-      owner,
-      repo,
-      per_page: pageSize,
-      sort: "created",
-      direction: "desc",
-      page,
-    });
+    const { data } = await withRetry(() =>
+      octokit.issues.listCommentsForRepo({
+        owner,
+        repo,
+        per_page: pageSize,
+        sort: "created",
+        direction: "desc",
+        page,
+      })
+    );
     const filteredComments = data.filter((item) => {
       const commentDate = new Date(item.created_at);
       return isSameDay(commentDate, metricDate);
@@ -210,20 +216,22 @@ const postGhMetrics = async (metrics: GHMetrics) => {
   ghMetrics.push(...issuesMetrics, ...commentsMetrics, ...prsMetrics);
 
   // clones metrics
-  ghMetrics.push({
-    metricName: "gh_clones",
-    value: metrics.clones,
-    labels: { orgName, repoName },
-    timestamp,
-  });
+  if (metrics.clones >= 0) {
+    ghMetrics.push({
+      metricName: "gh_clones",
+      value: metrics.clones,
+      labels: { orgName, repoName },
+      timestamp,
+    });
 
-  // unique clones metrics
-  ghMetrics.push({
-    metricName: "gh_clones_unique",
-    value: metrics.uniques,
-    labels: { orgName, repoName },
-    timestamp,
-  });
+    // unique clones metrics
+    ghMetrics.push({
+      metricName: "gh_clones_unique",
+      value: metrics.uniques,
+      labels: { orgName, repoName },
+      timestamp,
+    });
+  }
 
   console.info("Posting GH metrics >>> ", ghMetrics);
   await Promise.all(ghMetrics.map(postMetric));
@@ -394,35 +402,30 @@ async function getGitHubCloneMetrics(
   repo: string,
   metricDate?: Date
 ) {
-  try {
-    const { data } = await octokit.repos.getClones({
+  const { data } = await withRetry(() =>
+    octokit.repos.getClones({
       owner: org,
       repo,
       per: "day",
-    });
-    if (metricDate) {
-      const metricDateCloneData = data.clones.find((clone) =>
-        isSameDay(new Date(clone.timestamp), metricDate)
-      );
-      if (metricDateCloneData) {
-        return metricDateCloneData;
-      } else {
-        throw new Error("No clone metrics found for the given date");
-      }
-    } else {
-      console.info("Clones data >>>> ", data);
-      return data;
-    }
-  } catch (error) {
-    console.error(
-      `Error fetching clone metrics for repository ${org}/${repo}:`,
-      error
+    })
+  );
+  if (metricDate) {
+    const metricDateCloneData = data.clones.find((clone) =>
+      isSameDay(new Date(clone.timestamp), metricDate)
     );
-    return {
-      count: 0,
-      uniques: 0,
-      clones: [],
-    };
+    if (metricDateCloneData) {
+      return metricDateCloneData;
+    } else {
+      // return -1 for count and uniques if no data is found for the given date
+      return {
+        count: -1,
+        uniques: -1,
+        clones: [],
+      };
+    }
+  } else {
+    console.info("Clones data >>>> ", data);
+    return data;
   }
 }
 

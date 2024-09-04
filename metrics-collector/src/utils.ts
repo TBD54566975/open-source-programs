@@ -38,30 +38,78 @@ export async function fetchWithRetry(
     ...fetchOptions
   } = options;
 
+  return withRetry(
+    () =>
+      fetch(url, {
+        ...fetchOptions,
+      }),
+    options
+  );
+
+  // let retries = 0;
+  // while (retries < maxRetries) {
+  //   try {
+  //     const controller = new AbortController();
+  //     const id = setTimeout(() => controller.abort(), timeout);
+
+  //     const response = await fetch(url, {
+  //       ...fetchOptions,
+  //       signal: controller.signal,
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorData = await response.text();
+  //       console.error(
+  //         `HTTP error! Status: ${response.status}, Response: ${errorData}`
+  //       );
+  //       throw new Error(
+  //         `HTTP error! Status: ${response.status}, Response: ${errorData}`
+  //       );
+  //     }
+
+  //     clearTimeout(id);
+
+  //     return response;
+  //   } catch (error) {
+  //     console.error(`Attempt ${retries + 1} failed:`, error);
+  //     retries++;
+  //     if (retries >= maxRetries) {
+  //       throw error;
+  //     }
+  //     const exponentialDelay = retryDelay * Math.pow(2, retries - 1);
+  //     await new Promise((resolve) => setTimeout(resolve, exponentialDelay));
+  //   }
+  // }
+  // throw new Error("Max retries reached");
+}
+
+interface RetryOptions {
+  maxRetries?: number;
+  retryDelay?: number;
+  timeout?: number;
+}
+
+export async function withRetry<T>(
+  operation: () => Promise<T>,
+  { maxRetries = 9, retryDelay = 1000, timeout = 10000 }: RetryOptions = {}
+): Promise<T> {
   let retries = 0;
   while (retries < maxRetries) {
     try {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeout);
 
-      const response = await fetch(url, {
-        ...fetchOptions,
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error(
-          `HTTP error! Status: ${response.status}, Response: ${errorData}`
-        );
-        throw new Error(
-          `HTTP error! Status: ${response.status}, Response: ${errorData}`
-        );
-      }
+      const result = await Promise.race([
+        operation(),
+        new Promise<never>((_, reject) =>
+          controller.signal.addEventListener("abort", () =>
+            reject(new Error("Operation timed out"))
+          )
+        ),
+      ]);
 
       clearTimeout(id);
-
-      return response;
+      return result;
     } catch (error) {
       console.error(`Attempt ${retries + 1} failed:`, error);
       retries++;
