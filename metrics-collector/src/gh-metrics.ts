@@ -26,7 +26,7 @@ const repos = [
 
 const KNOWN_PAST_MEMBERS = ["amika-sq"];
 
-const KNOWN_BOTS = ["codecov-commenter", "dependabot[bot]", "renovate[bot]"];
+const KNOWN_FAKE_BOTS = ["codecov-commenter"];
 
 const dataFilePath = path.join(process.cwd(), "pr_metrics.json");
 const csvDataFilePath = path.join(process.cwd(), "pr_metrics.csv");
@@ -251,7 +251,7 @@ async function metricByUserType(
       throw new Error("GH Item user not found!");
     }
     let userType = "unknown";
-    if (item.user.type === "Bot") {
+    if (item.user.type === "Bot" || KNOWN_FAKE_BOTS.includes(item.user.login)) {
       userType = "bot";
     } else if (await isMember(orgName, item.user.login)) {
       userType = "internal";
